@@ -1,10 +1,15 @@
 package com.itmo.java.basics.logic;
 
-import com.itmo.java.basics.exceptions.DatabaseException;
-
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * Сегмент - append-only файл, хранящий пары ключ-значение, разделенные специальным символом.
+ * - имеет ограниченный размер, большие значения (>100000) записываются в последний сегмент, если он не read-only
+ * - при превышении размера сегмента создается новый сегмент и дальнейшие операции записи производятся в него
+ * - именование файла-сегмента должно позволять установить очередность их появления
+ * - является неизменяемым после появления более нового сегмента
+ */
 public interface Segment {
     /**
      * Возвращает имя сегмента.
@@ -13,9 +18,6 @@ public interface Segment {
      */
     String getName();
 
-    // todo sukhoa in future may return something like SegmentWriteResult .. with report and error details?
-    // for new returns false if cannot allocate requested capacity
-    // exception is questionable
     /**
      * Записывает значение по указанному ключу в сегмент.
      *
@@ -23,9 +25,8 @@ public interface Segment {
      * @param objectValue значение, которое нужно записать
      * @return {@code true} - если значение записалось, {@code false} - если нет
      * @throws IOException если произошла ошибка ввода-вывода.
-     * @throws DatabaseException
      */
-    boolean write(String objectKey, byte[] objectValue) throws IOException, DatabaseException;
+    boolean write(String objectKey, byte[] objectValue) throws IOException;
 
     /**
      * Считывает значение из сегмента по переданному ключу.
