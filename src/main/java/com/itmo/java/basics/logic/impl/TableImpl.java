@@ -65,7 +65,7 @@ public class TableImpl implements Table {
     public Optional<byte[]> read(String objectKey) throws DatabaseException {
         Optional<Segment> optionalSegment = tableIndex.searchForKey(objectKey);
         if (optionalSegment.isEmpty()) {
-            throw new DatabaseException("Cannot find key in segment");
+            return Optional.empty();
         }
 
         try {
