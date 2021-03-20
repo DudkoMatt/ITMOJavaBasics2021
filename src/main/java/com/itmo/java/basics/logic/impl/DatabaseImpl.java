@@ -47,7 +47,7 @@ public class DatabaseImpl implements Database {
         if (tables.containsKey(tableName))
             throw new DatabaseException("Table already exists");
 
-        tables.put(tableName, TableImpl.create(tableName, databaseRoot, new TableIndex()));
+        tables.put(tableName, TableImpl.create(tableName, Paths.get(databaseRoot.toString(), dbName), new TableIndex()));
     }
 
     @Override

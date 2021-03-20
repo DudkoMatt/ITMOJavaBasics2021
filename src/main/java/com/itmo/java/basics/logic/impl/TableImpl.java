@@ -30,15 +30,15 @@ public class TableImpl implements Table {
         this.tableIndex = tableIndex;
         this.pathToDatabaseRoot = pathToDatabaseRoot;
 
-        this.lastCreatedSegment = SegmentImpl.create(
-                SegmentImpl.createSegmentName(tableName), Paths.get(pathToDatabaseRoot.toString(), tableName)
-        );
-
         try {
             Files.createDirectory(Paths.get(pathToDatabaseRoot.toString(), tableName));
         } catch (IOException e) {
             throw new DatabaseException("Cannot create directory for a table", e);
         }
+
+        this.lastCreatedSegment = SegmentImpl.create(
+                SegmentImpl.createSegmentName(tableName), Paths.get(pathToDatabaseRoot.toString(), tableName)
+        );
     }
 
     @Override
