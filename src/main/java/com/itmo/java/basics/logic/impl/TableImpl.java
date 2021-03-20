@@ -48,6 +48,9 @@ public class TableImpl implements Table {
 
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
+        if (lastCreatedSegment.isReadOnly())
+            lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tableRootPath);
+
         try {
             lastCreatedSegment.write(objectKey, objectValue);
         } catch (IOException e) {
@@ -55,9 +58,6 @@ public class TableImpl implements Table {
         }
 
         tableIndex.onIndexedEntityUpdated(objectKey, lastCreatedSegment);
-
-        if (lastCreatedSegment.isReadOnly())
-            lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tableRootPath);
     }
 
     @Override
