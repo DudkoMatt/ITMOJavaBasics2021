@@ -22,16 +22,16 @@ public class DatabaseImpl implements Database {
     }
 
     private final String dbName;
-    private final Path databaseRoot;
+    private final Path pathToDatabaseRoot;
     private final HashMap<String, Table> tables;
 
     private DatabaseImpl(String dbName, Path databaseRoot) throws DatabaseException {
         this.dbName = dbName;
-        this.databaseRoot = databaseRoot;
+        this.pathToDatabaseRoot = Paths.get(databaseRoot.toString(), dbName);
         this.tables = new HashMap<>();
 
         try {
-            Files.createDirectory(Paths.get(databaseRoot.toString(), dbName));
+            Files.createDirectory(pathToDatabaseRoot);
         } catch (IOException e) {
             throw new DatabaseException("Cannot create directory for a database", e);
         }
@@ -47,7 +47,7 @@ public class DatabaseImpl implements Database {
         if (tables.containsKey(tableName))
             throw new DatabaseException("Table already exists");
 
-        tables.put(tableName, TableImpl.create(tableName, Paths.get(databaseRoot.toString(), dbName), new TableIndex()));
+        tables.put(tableName, TableImpl.create(tableName, pathToDatabaseRoot, new TableIndex()));
     }
 
     @Override

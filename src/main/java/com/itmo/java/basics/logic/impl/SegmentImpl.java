@@ -46,18 +46,18 @@ public class SegmentImpl implements Segment {
 
         this.segmentIndex = new SegmentIndex();
 
-        Path fullFilePath = Paths.get(tableRootPath.toString(), segmentName);
+        Path fullSegmentPath = Paths.get(tableRootPath.toString(), segmentName);
 
         try {
-            if (!Files.exists(fullFilePath)) {
-                Files.createFile(fullFilePath);
+            if (!Files.exists(fullSegmentPath)) {
+                Files.createFile(fullSegmentPath);
             }
         } catch (IOException e) {
             throw new DatabaseException("Cannot create a segment", e);
         }
 
         try {
-            this.dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(fullFilePath, APPEND));
+            this.dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(fullSegmentPath, APPEND));
         } catch (IOException e) {
             throw new DatabaseException("Cannot create an I/O stream", e);
         }
@@ -75,10 +75,10 @@ public class SegmentImpl implements Segment {
         segmentIndex.onIndexedEntityUpdated(new String(databaseRecord.getKey()), new SegmentOffsetInfoImpl(bytesWritten));
         bytesWritten += databaseRecord.size();
 
-        dataOutputStream.flush();
-
-        if (isReadOnly())
+        if (isReadOnly()) {
+            dataOutputStream.flush();
             dataOutputStream.close();
+        }
 
         return true;
     }

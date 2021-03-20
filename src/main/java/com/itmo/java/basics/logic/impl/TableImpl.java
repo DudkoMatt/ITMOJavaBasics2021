@@ -22,22 +22,22 @@ public class TableImpl implements Table {
 
     private final String tableName;
     private final TableIndex tableIndex;
-    private final Path pathToDatabaseRoot;
+    private final Path tableRootPath;
     private Segment lastCreatedSegment;
 
     private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
         this.tableName = tableName;
         this.tableIndex = tableIndex;
-        this.pathToDatabaseRoot = pathToDatabaseRoot;
+        this.tableRootPath = Paths.get(pathToDatabaseRoot.toString(), tableName);
 
         try {
-            Files.createDirectory(Paths.get(pathToDatabaseRoot.toString(), tableName));
+            Files.createDirectory(tableRootPath);
         } catch (IOException e) {
             throw new DatabaseException("Cannot create directory for a table", e);
         }
 
         this.lastCreatedSegment = SegmentImpl.create(
-                SegmentImpl.createSegmentName(tableName), Paths.get(pathToDatabaseRoot.toString(), tableName)
+                SegmentImpl.createSegmentName(tableName), tableRootPath
         );
     }
 
