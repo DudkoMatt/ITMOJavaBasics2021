@@ -48,10 +48,6 @@ public class TableImpl implements Table {
 
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
-        // Берем последний индекс и пытаемся записать туда значение, если он не заполнен
-        if (lastCreatedSegment.isReadOnly())
-            lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), pathToDatabaseRoot);
-
         try {
             lastCreatedSegment.write(objectKey, objectValue);
         } catch (IOException e) {
@@ -59,6 +55,9 @@ public class TableImpl implements Table {
         }
 
         tableIndex.onIndexedEntityUpdated(objectKey, lastCreatedSegment);
+
+        if (lastCreatedSegment.isReadOnly())
+            lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tableRootPath);
     }
 
     @Override
@@ -77,15 +76,6 @@ public class TableImpl implements Table {
 
     @Override
     public void delete(String objectKey) throws DatabaseException {
-        Optional<Segment> optionalSegment = tableIndex.searchForKey(objectKey);
-        if (optionalSegment.isEmpty()) {
-            throw new DatabaseException("Cannot find key in segment");
-        }
-
-        try {
-            optionalSegment.get().delete(objectKey);
-        } catch (IOException e) {
-            throw new DatabaseException("Cannot delete key from segment", e);
-        }
+        write(objectKey, null);
     }
 }
