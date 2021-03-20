@@ -48,11 +48,11 @@ public class TableImpl implements Table {
 
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
-        if (lastCreatedSegment.isReadOnly())
-            lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tableRootPath);
-
         try {
-            lastCreatedSegment.write(objectKey, objectValue);
+            if (!lastCreatedSegment.write(objectKey, objectValue)) {
+                lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tableRootPath);
+                lastCreatedSegment.write(objectKey, objectValue);
+            }
         } catch (IOException e) {
             throw new DatabaseException("Cannot write value to segment", e);
         }
