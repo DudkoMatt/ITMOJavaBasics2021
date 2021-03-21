@@ -54,7 +54,7 @@ public class TableImpl implements Table {
                 lastCreatedSegment.write(objectKey, objectValue);
             }
         } catch (IOException e) {
-            throw new DatabaseException("Cannot write value to segment", e);
+            throw new DatabaseException("Writing: Cannot write value to segment", e);
         }
 
         tableIndex.onIndexedEntityUpdated(objectKey, lastCreatedSegment);
@@ -76,6 +76,15 @@ public class TableImpl implements Table {
 
     @Override
     public void delete(String objectKey) throws DatabaseException {
-        write(objectKey, null);
+        try {
+            if (!lastCreatedSegment.delete(objectKey)) {
+                lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tableRootPath);
+                lastCreatedSegment.delete(objectKey);
+            }
+        } catch (IOException e) {
+            throw new DatabaseException("Deleting: Cannot write value to segment", e);
+        }
+
+        tableIndex.onIndexedEntityUpdated(objectKey, lastCreatedSegment);
     }
 }
