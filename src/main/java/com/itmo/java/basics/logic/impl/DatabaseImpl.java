@@ -53,7 +53,11 @@ public class DatabaseImpl implements Database {
     @Override
     public void write(String tableName, String objectKey, byte[] objectValue) throws DatabaseException {
         checkIfTableExists(tableName);
-        tables.get(tableName).write(objectKey, objectValue);
+        if (objectValue == null) {
+            tables.get(tableName).delete(objectKey);
+        } else {
+            tables.get(tableName).write(objectKey, objectValue);
+        }
     }
 
     @Override

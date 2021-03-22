@@ -26,12 +26,12 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public long size() {
-        return 2 * 4 + getKeySize() + (isValuePresented() ? getValueSize() : 0);
+        return 2 * 4 + getKeySize() + getValueSize();
     }
 
     @Override
     public boolean isValuePresented() {
-        return value != null;
+        return true;
     }
 
     @Override
@@ -41,6 +41,6 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public int getValueSize() {
-        return value != null ? value.length : -1;
+        return value.length;
     }
 }
