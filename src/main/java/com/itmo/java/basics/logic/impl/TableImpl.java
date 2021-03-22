@@ -49,6 +49,7 @@ public class TableImpl implements Table {
 
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
+        if (objectValue == null) { delete(objectKey); }
         try {
             if (!lastCreatedSegment.write(objectKey, objectValue)) {
                 lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tableRootPath);
