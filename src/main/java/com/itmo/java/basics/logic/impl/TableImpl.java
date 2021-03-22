@@ -49,17 +49,20 @@ public class TableImpl implements Table {
 
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
-        if (objectValue == null) { delete(objectKey); }
-        try {
-            if (!lastCreatedSegment.write(objectKey, objectValue)) {
-                lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tableRootPath);
-                lastCreatedSegment.write(objectKey, objectValue);
+        if (objectValue == null) {
+            delete(objectKey);
+        } else {
+            try {
+                if (!lastCreatedSegment.write(objectKey, objectValue)) {
+                    lastCreatedSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tableRootPath);
+                    lastCreatedSegment.write(objectKey, objectValue);
+                }
+            } catch (IOException e) {
+                throw new DatabaseException("Writing: Cannot write value to segment", e);
             }
-        } catch (IOException e) {
-            throw new DatabaseException("Writing: Cannot write value to segment", e);
-        }
 
-        tableIndex.onIndexedEntityUpdated(objectKey, lastCreatedSegment);
+            tableIndex.onIndexedEntityUpdated(objectKey, lastCreatedSegment);
+        }
     }
 
     @Override

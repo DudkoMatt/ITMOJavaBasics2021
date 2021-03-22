@@ -86,7 +86,9 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean write(String objectKey, byte[] objectValue) throws IOException {
-        if (objectValue == null) { delete(objectKey); }
+        if (objectValue == null) {
+            return delete(objectKey);
+        }
         return writeToFile(new SetDatabaseRecord(objectKey, objectValue));
     }
 
