@@ -34,8 +34,9 @@ public class DatabaseOutputStream extends DataOutputStream {
         writeInt(databaseRecord.getKeySize());
         write(databaseRecord.getKey());
         writeInt(databaseRecord.getValueSize());
-        if (databaseRecord.isValuePresented())
+        if (databaseRecord.isValuePresented()) {
             write(databaseRecord.getValue());
+        }
         return databaseRecord.size();
     }
 }

@@ -15,8 +15,9 @@ import java.util.Optional;
 
 public class DatabaseImpl implements Database {
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
-        if (new File(databaseRoot.toString(), dbName).exists())
+        if (new File(databaseRoot.toString(), dbName).exists()) {
             throw new DatabaseException("Database already exists");
+        }
 
         return new DatabaseImpl(dbName, databaseRoot);
     }
@@ -44,8 +45,9 @@ public class DatabaseImpl implements Database {
 
     @Override
     public void createTableIfNotExists(String tableName) throws DatabaseException {
-        if (tables.containsKey(tableName))
+        if (tables.containsKey(tableName)) {
             throw new DatabaseException("Table already exists");
+        }
 
         tables.put(tableName, TableImpl.create(tableName, databaseRootPath, new TableIndex()));
     }
@@ -73,7 +75,8 @@ public class DatabaseImpl implements Database {
     }
 
     private void checkIfTableExists(String tableName) throws DatabaseException {
-        if (!tables.containsKey(tableName))
+        if (!tables.containsKey(tableName)) {
             throw new DatabaseException("Table with name " + tableName + " was not found");
+        }
     }
 }

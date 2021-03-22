@@ -20,8 +20,9 @@ import static java.nio.file.StandardOpenOption.APPEND;
 
 public class SegmentImpl implements Segment {
     static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
-        if (new File(tableRootPath.toString(), segmentName).exists())
+        if (new File(tableRootPath.toString(), segmentName).exists()) {
             throw new DatabaseException("Segment already exists");
+        }
 
         return new SegmentImpl(segmentName, tableRootPath);
     }
@@ -69,7 +70,7 @@ public class SegmentImpl implements Segment {
     }
 
     private boolean writeToFile(WritableDatabaseRecord databaseRecord) throws IOException {
-        if (isReadOnly()) return false;
+        if (isReadOnly()) { return false; }
         dataOutputStream.write(databaseRecord);
 
         segmentIndex.onIndexedEntityUpdated(new String(databaseRecord.getKey()), new SegmentOffsetInfoImpl(bytesWritten));
@@ -92,8 +93,9 @@ public class SegmentImpl implements Segment {
     public Optional<byte[]> read(String objectKey) throws IOException {
         Optional<SegmentOffsetInfo> optionalSegmentOffsetInfo = segmentIndex.searchForKey(objectKey);
 
-        if (optionalSegmentOffsetInfo.isEmpty())
+        if (optionalSegmentOffsetInfo.isEmpty()) {
             return Optional.empty();
+        }
 
         SegmentOffsetInfo offsetInfo = optionalSegmentOffsetInfo.get();
 
@@ -102,13 +104,15 @@ public class SegmentImpl implements Segment {
         );
 
         long skipped = dataInputStream.skip(offsetInfo.getOffset());
-        if (skipped != offsetInfo.getOffset())
+        if (skipped != offsetInfo.getOffset()) {
             throw new IOException("Cannot skip offset");
+        }
 
         Optional<DatabaseRecord> optionalDatabaseRecord = dataInputStream.readDbUnit();
 
-        if (optionalDatabaseRecord.isEmpty())
+        if (optionalDatabaseRecord.isEmpty()) {
             return Optional.empty();
+        }
 
         return Optional.of(optionalDatabaseRecord.get().getValue());
     }

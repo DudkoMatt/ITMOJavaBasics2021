@@ -14,8 +14,9 @@ import java.util.Optional;
 
 public class TableImpl implements Table {
     static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
-        if (new File(pathToDatabaseRoot.toString(), tableName).exists())
+        if (new File(pathToDatabaseRoot.toString(), tableName).exists()) {
             throw new DatabaseException("Table already exists");
+        }
 
         return new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
     }
