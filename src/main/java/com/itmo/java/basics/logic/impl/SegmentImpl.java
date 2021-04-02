@@ -70,7 +70,10 @@ public class SegmentImpl implements Segment {
     }
 
     private boolean writeToFile(WritableDatabaseRecord databaseRecord) throws IOException {
-        if (isReadOnly()) { return false; }
+        if (isReadOnly()) {
+            return false;
+        }
+
         dataOutputStream.write(databaseRecord);
 
         segmentIndex.onIndexedEntityUpdated(new String(databaseRecord.getKey()), new SegmentOffsetInfoImpl(bytesWritten));
