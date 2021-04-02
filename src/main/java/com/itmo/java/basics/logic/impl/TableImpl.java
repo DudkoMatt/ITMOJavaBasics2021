@@ -3,6 +3,7 @@ package com.itmo.java.basics.logic.impl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.logic.Segment;
+import com.itmo.java.basics.initialization.TableInitializationContext;
 import com.itmo.java.basics.logic.Table;
 
 import java.io.File;
@@ -19,6 +20,10 @@ public class TableImpl implements Table {
         }
 
         return new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
+    }
+
+    public static Table initializeFromContext(TableInitializationContext context) {
+        return null;
     }
 
     private final String tableName;
