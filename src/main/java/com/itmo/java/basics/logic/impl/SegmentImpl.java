@@ -10,6 +10,9 @@ import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 import com.itmo.java.basics.logic.io.DatabaseInputStream;
 import com.itmo.java.basics.logic.io.DatabaseOutputStream;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -19,17 +22,24 @@ import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.APPEND;
 
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class SegmentImpl implements Segment {
     static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
         if (new File(tableRootPath.toString(), segmentName).exists()) {
             throw new DatabaseException("Segment already exists");
         }
 
-        return new SegmentImpl(segmentName, tableRootPath);
+        return new SegmentImpl(segmentName, tableRootPath, new SegmentIndex());
     }
 
     public static Segment initializeFromContext(SegmentInitializationContext context) {
-        return null;
+        return SegmentImpl.builder()
+                .segmentName(context.getSegmentName())
+                .tableRootPath(context.getSegmentPath().getParent())
+                .segmentIndex(context.getIndex())
+                .bytesWritten(context.getCurrentSize())
+                .build();
     }
 
     static String createSegmentName(String tableName) {
@@ -40,17 +50,17 @@ public class SegmentImpl implements Segment {
 
     private final String segmentName;
     private final Path tableRootPath;
-    private int bytesWritten;
+    private long bytesWritten;
 
     private final SegmentIndex segmentIndex;
     private final DatabaseOutputStream dataOutputStream;
 
-    private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
+    private SegmentImpl(String segmentName, Path tableRootPath, SegmentIndex segmentIndex) throws DatabaseException {
         this.segmentName = segmentName;
         this.tableRootPath = tableRootPath;
         this.bytesWritten = 0;
 
-        this.segmentIndex = new SegmentIndex();
+        this.segmentIndex = segmentIndex;
 
         Path fullSegmentPath = Paths.get(tableRootPath.toString(), segmentName);
 

@@ -5,6 +5,9 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.DatabaseInitializationContext;
 import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class DatabaseImpl implements Database {
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
         if (new File(databaseRoot.toString(), dbName).exists()) {
@@ -25,7 +31,7 @@ public class DatabaseImpl implements Database {
 
     private final String dbName;
     private final Path databaseRootPath;
-    private final HashMap<String, Table> tables;
+    private final Map<String, Table> tables;
 
     private DatabaseImpl(String dbName, Path databaseRoot) throws DatabaseException {
         this.dbName = dbName;
@@ -39,8 +45,12 @@ public class DatabaseImpl implements Database {
         }
     }
 
-    public static Database initializeFromContext(DatabaseInitializationContext context) {
-        return null;
+    public static Database initializeFromContext(DatabaseInitializationContext context) throws DatabaseException {
+        return DatabaseImpl.builder()
+                .dbName(context.getDbName())
+                .databaseRootPath(context.getDatabasePath())
+                .tables(context.getTables())
+                .build();
     }
 
     @Override

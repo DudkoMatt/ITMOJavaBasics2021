@@ -5,6 +5,9 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.logic.Segment;
 import com.itmo.java.basics.initialization.TableInitializationContext;
 import com.itmo.java.basics.logic.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,17 +16,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class TableImpl implements Table {
     static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
         if (new File(pathToDatabaseRoot.toString(), tableName).exists()) {
             throw new DatabaseException("Table already exists");
         }
 
-        return new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
+        return new CachingTable(new TableImpl(tableName, pathToDatabaseRoot, tableIndex));
     }
 
     public static Table initializeFromContext(TableInitializationContext context) {
-        return null;
+        return new CachingTable(
+                TableImpl.builder()
+                        .tableName(context.getTableName())
+                        .tableRootPath(context.getTablePath())
+                        .tableIndex(context.getTableIndex())
+                        .lastCreatedSegment(context.getCurrentSegment())
+                        .build()
+        );
     }
 
     private final String tableName;

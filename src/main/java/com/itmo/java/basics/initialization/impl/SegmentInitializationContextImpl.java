@@ -4,31 +4,46 @@ import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.initialization.SegmentInitializationContext;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
+// ToDO
 public class SegmentInitializationContextImpl implements SegmentInitializationContext {
-    public SegmentInitializationContextImpl(String segmentName, Path segmentPath, int currentSize, SegmentIndex index) {
+    private final String segmentName;
+    private final Path segmentPath;
+    private final SegmentIndex index;
+    // ToDO: current size must be long
+    private final long currentSize;
+
+    // ToDO: current size must be long
+    public SegmentInitializationContextImpl(String segmentName, Path segmentPath, long currentSize, SegmentIndex index) {
+        this.segmentName = segmentName;
+        this.segmentPath = segmentPath;
+        this.currentSize = currentSize;
+        this.index = index;
     }
 
-    public SegmentInitializationContextImpl(String segmentName, Path tablePath, int currentSize) {
+    // ToDO: current size must be long
+    public SegmentInitializationContextImpl(String segmentName, Path tablePath, long currentSize) {
+        this(segmentName, Paths.get(tablePath.toString(), segmentName), currentSize, null);
     }
 
     @Override
     public String getSegmentName() {
-        return null;
+        return segmentName;
     }
 
     @Override
     public Path getSegmentPath() {
-        return null;
+        return segmentPath;
     }
 
     @Override
     public SegmentIndex getIndex() {
-        return null;
+        return index;
     }
 
     @Override
     public long getCurrentSize() {
-        return 0;
+        return currentSize;
     }
 }
