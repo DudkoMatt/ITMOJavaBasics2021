@@ -20,6 +20,11 @@ public class TableInitializationContextImpl implements TableInitializationContex
         this.currentSegment = null;
     }
 
+    public TableInitializationContextImpl(String tableName, Path databasePath, TableIndex tableIndex, Segment currentSegment) {
+        this(tableName, databasePath, tableIndex);
+        this.currentSegment = currentSegment;
+    }
+
     @Override
     public String getTableName() {
         return tableName;

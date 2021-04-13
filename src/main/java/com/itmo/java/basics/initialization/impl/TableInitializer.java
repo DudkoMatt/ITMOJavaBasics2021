@@ -63,7 +63,8 @@ public class TableInitializer implements Initializer {
                 new TableInitializationContextImpl(
                         context.currentTableContext().getTableName(),
                         context.currentTableContext().getTablePath(),
-                        context.currentTableContext().getTableIndex()
+                        context.currentTableContext().getTableIndex(),
+                        context.currentTableContext().getCurrentSegment()
                 )
         );
 
