@@ -28,6 +28,15 @@ public class TableImpl implements Table {
     }
 
     public static Table initializeFromContext(TableInitializationContext context) {
+        if (context.getCurrentSegment() == null) {
+            try {
+                context.updateCurrentSegment(SegmentImpl.create(SegmentImpl.createSegmentName(context.getTableName()), context.getTablePath().getParent()));
+            } catch (DatabaseException e) {
+                // ToDO: throwing unchecked exception in that case?
+                throw new RuntimeException(e);
+            }
+        }
+
         return new CachingTable(
                 TableImpl.builder()
                         .tableName(context.getTableName())
