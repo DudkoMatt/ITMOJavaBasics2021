@@ -45,7 +45,7 @@ public class DatabaseImpl implements Database {
         }
     }
 
-    public static Database initializeFromContext(DatabaseInitializationContext context) throws DatabaseException {
+    public static Database initializeFromContext(DatabaseInitializationContext context) {
         return DatabaseImpl.builder()
                 .dbName(context.getDbName())
                 .databaseRootPath(context.getDatabasePath())

@@ -19,7 +19,7 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class TableImpl implements Table {
-    static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
+    public static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
         if (new File(pathToDatabaseRoot.toString(), tableName).exists()) {
             throw new DatabaseException("Table already exists");
         }
