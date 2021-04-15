@@ -20,7 +20,7 @@ import java.util.Optional;
 import static java.nio.file.StandardOpenOption.APPEND;
 
 public class SegmentImpl implements Segment {
-    static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
+    public static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
         if (new File(tableRootPath.toString(), segmentName).exists()) {
             throw new DatabaseException("Segment already exists");
         }
