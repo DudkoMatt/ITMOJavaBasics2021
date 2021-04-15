@@ -29,7 +29,7 @@ public class DatabaseInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext initialContext) throws DatabaseException {
-        Path workingPath = Paths.get(initialContext.currentDbContext().getDatabasePath().toString(), initialContext.currentDbContext().getDbName());
+        Path workingPath = initialContext.currentDbContext().getDatabasePath();
 
         try {
             for (Path table_directory : Files.newDirectoryStream(workingPath)) {

@@ -32,7 +32,7 @@ public class TableInitializationContextImpl implements TableInitializationContex
 
     @Override
     public Path getTablePath() {
-        return databasePath;
+        return Paths.get(databasePath.toString(), tableName);
     }
 
     @Override

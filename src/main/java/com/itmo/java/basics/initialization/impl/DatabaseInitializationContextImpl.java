@@ -26,7 +26,7 @@ public class DatabaseInitializationContextImpl implements DatabaseInitialization
 
     @Override
     public Path getDatabasePath() {
-        return databaseRoot;
+        return Paths.get(databaseRoot.toString(), dbName);
     }
 
     @Override

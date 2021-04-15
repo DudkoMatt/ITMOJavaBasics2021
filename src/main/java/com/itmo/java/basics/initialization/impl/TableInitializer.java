@@ -28,7 +28,7 @@ public class TableInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-        Path workingPath = Paths.get(context.currentTableContext().getTablePath().toString(), context.currentTableContext().getTableName());
+        Path workingPath = context.currentTableContext().getTablePath();
 
         File[] files = new File(workingPath.toString()).listFiles();
         if (files == null) {
