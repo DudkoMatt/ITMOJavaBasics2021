@@ -33,13 +33,18 @@ public class SegmentImpl implements Segment {
         return new SegmentImpl(segmentName, tableRootPath, new SegmentIndex());
     }
 
-    public static Segment initializeFromContext(SegmentInitializationContext context) {
-        return SegmentImpl.builder()
-                .segmentName(context.getSegmentName())
-                .tableRootPath(context.getSegmentPath().getParent())
-                .segmentIndex(context.getIndex())
-                .bytesWritten(context.getCurrentSize())
-                .build();
+    public static Segment initializeFromContext(SegmentInitializationContext context) throws DatabaseException {
+        try {
+            return SegmentImpl.builder()
+                    .segmentName(context.getSegmentName())
+                    .tableRootPath(context.getSegmentPath().getParent())
+                    .segmentIndex(context.getIndex())
+                    .bytesWritten(context.getCurrentSize())
+                    .dataOutputStream(new DatabaseOutputStream(Files.newOutputStream(context.getSegmentPath(), APPEND)))
+                    .build();
+        } catch (IOException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     static String createSegmentName(String tableName) {
