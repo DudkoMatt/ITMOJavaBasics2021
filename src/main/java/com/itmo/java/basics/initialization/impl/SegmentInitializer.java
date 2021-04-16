@@ -5,19 +5,17 @@ import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.index.impl.SegmentOffsetInfoImpl;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
+import com.itmo.java.basics.logic.DatabaseRecord;
 import com.itmo.java.basics.logic.Segment;
 import com.itmo.java.basics.logic.impl.SegmentImpl;
+import com.itmo.java.basics.logic.io.DatabaseInputStream;
 
-import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Optional;
 
-// ToDO
 public class SegmentInitializer implements Initializer {
-    // ToDO: взято из DatabaseInputStream
-    private static final int REMOVED_OBJECT_SIZE = -1;
-
     /**
      * Добавляет в контекст информацию об инициализируемом сегменте.
      * Составляет индекс сегмента
@@ -28,38 +26,34 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
+        SegmentIndex segmentIndex = new SegmentIndex();
+        HashSet<String> presentKeys = new HashSet<>();
+
+        try (DatabaseInputStream databaseInputStream = new DatabaseInputStream(new FileInputStream(context.currentSegmentContext().getSegmentPath().toFile()))) {
+            while (databaseInputStream.available() > 0) {
+                Optional<DatabaseRecord> optionalDatabaseRecord = databaseInputStream.readDbUnit();
+                String lastKey = new String(databaseInputStream.getLastKeyObject());
+                segmentIndex.onIndexedEntityUpdated(lastKey, new SegmentOffsetInfoImpl(databaseInputStream.getReadBytes()));
+                optionalDatabaseRecord.ifPresentOrElse(
+                        (databaseRecord) -> presentKeys.add(lastKey),
+                        () -> presentKeys.remove(lastKey)
+                );
+            }
+        } catch (IOException e) {
+            throw new DatabaseException("Cannot create FileInputStream", e);
+        }
+
         Segment segment = SegmentImpl.initializeFromContext(new SegmentInitializationContextImpl(
                 context.currentSegmentContext().getSegmentName(),
                 context.currentSegmentContext().getSegmentPath(),
                 context.currentSegmentContext().getCurrentSize(),
-                createIndex(context.currentSegmentContext().getSegmentPath())
+                segmentIndex
         ));
 
         context.currentTableContext().updateCurrentSegment(segment);
-    }
 
-    // ToDO: think about refactor -> REMOVED_OBJECT_SIZE should be used from DatabaseInputStream??
-    private static SegmentIndex createIndex(Path filepath) throws DatabaseException {
-        SegmentIndex segmentIndex = new SegmentIndex();
-        try {
-            DataInputStream inputStream = new DataInputStream(new FileInputStream(filepath.toString()));
-            long currentPosition = 0;
-
-            while (inputStream.available() > 0) {
-                int keySize = inputStream.readInt();
-                byte[] keyObject = inputStream.readNBytes(keySize);
-                int valueSize = inputStream.readInt();
-                currentPosition += 2 * 4 + keySize;
-                segmentIndex.onIndexedEntityUpdated(new String(keyObject), new SegmentOffsetInfoImpl(currentPosition));
-                if (valueSize != REMOVED_OBJECT_SIZE) {
-                    inputStream.skipBytes(valueSize);
-                    currentPosition += valueSize;
-                }
-            }
-        } catch (IOException e) {
-            throw new DatabaseException("Cannot read file", e);
+        for (String key: presentKeys) {
+            context.currentTableContext().getTableIndex().onIndexedEntityUpdated(key, segment);
         }
-
-        return segmentIndex;
     }
 }
