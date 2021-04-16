@@ -50,8 +50,8 @@ public class SegmentInitializer implements Initializer {
                 byte[] keyObject = inputStream.readNBytes(keySize);
                 int valueSize = inputStream.readInt();
                 currentPosition += 2 * 4 + keySize;
+                segmentIndex.onIndexedEntityUpdated(new String(keyObject), new SegmentOffsetInfoImpl(currentPosition));
                 if (valueSize != REMOVED_OBJECT_SIZE) {
-                    segmentIndex.onIndexedEntityUpdated(new String(keyObject), new SegmentOffsetInfoImpl(currentPosition));
                     inputStream.skipBytes(valueSize);
                     currentPosition += valueSize;
                 }
