@@ -29,7 +29,7 @@ public class DatabaseInputStream extends DataInputStream {
         int keySize = readInt();
         byte[] keyObject = readNBytes(keySize);
         int valueSize = readInt();
-        readBytes += 4 * 2 + keyObject.length;
+        readBytes += 4 * 2 + keySize;
         lastKeyObject = keyObject;
         if (valueSize == REMOVED_OBJECT_SIZE) {
             return Optional.empty();
