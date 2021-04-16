@@ -36,7 +36,6 @@ public class SegmentInitializer implements Initializer {
         ));
 
         context.currentTableContext().updateCurrentSegment(segment);
-        context.currentTableContext().getTableIndex().onIndexedEntityUpdated(segment.getName(), segment);
     }
 
     // ToDO: think about refactor -> REMOVED_OBJECT_SIZE should be used from DatabaseInputStream??
