@@ -14,6 +14,8 @@ import java.util.Optional;
  */
 public class DatabaseInputStream extends DataInputStream {
     private static final int REMOVED_OBJECT_SIZE = -1;
+    private long readBytes = 0;
+    private byte[] lastKeyObject = null;
 
     public DatabaseInputStream(InputStream inputStream) {
         super(inputStream);
@@ -27,10 +29,21 @@ public class DatabaseInputStream extends DataInputStream {
         int keySize = readInt();
         byte[] keyObject = readNBytes(keySize);
         int valueSize = readInt();
+        readBytes += 4 * 2 + keyObject.length;
+        lastKeyObject = keyObject;
         if (valueSize == REMOVED_OBJECT_SIZE) {
             return Optional.empty();
         } else {
+            readBytes += valueSize;
             return Optional.of(new SetDatabaseRecord(new String(keyObject), readNBytes(valueSize)));
         }
+    }
+
+    public long getReadBytes() {
+        return readBytes;
+    }
+
+    public byte[] getLastKeyObject() {
+        return lastKeyObject;
     }
 }
