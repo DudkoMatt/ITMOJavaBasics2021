@@ -31,9 +31,10 @@ public class SegmentInitializer implements Initializer {
 
         try (DatabaseInputStream databaseInputStream = new DatabaseInputStream(new FileInputStream(context.currentSegmentContext().getSegmentPath().toFile()))) {
             while (databaseInputStream.available() > 0) {
+                long currentStreamPosition = databaseInputStream.getReadBytes();
                 Optional<DatabaseRecord> optionalDatabaseRecord = databaseInputStream.readDbUnit();
                 String lastKey = new String(databaseInputStream.getLastKeyObject());
-                segmentIndex.onIndexedEntityUpdated(lastKey, new SegmentOffsetInfoImpl(databaseInputStream.getReadBytes()));
+                segmentIndex.onIndexedEntityUpdated(lastKey, new SegmentOffsetInfoImpl(currentStreamPosition));
                 optionalDatabaseRecord.ifPresentOrElse(
                         (databaseRecord) -> presentKeys.add(lastKey),
                         () -> presentKeys.remove(lastKey)
