@@ -3,12 +3,10 @@ package com.itmo.java.basics.initialization.impl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
-import com.itmo.java.basics.logic.Table;
 import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class TableInitializer implements Initializer {
@@ -59,15 +57,6 @@ public class TableInitializer implements Initializer {
             );
         }
 
-        Table table = TableImpl.initializeFromContext(
-                new TableInitializationContextImpl(
-                        context.currentTableContext().getTableName(),
-                        context.currentTableContext().getTablePath(),
-                        context.currentTableContext().getTableIndex(),
-                        context.currentTableContext().getCurrentSegment()
-                )
-        );
-
-        context.currentDbContext().addTable(table);
+        context.currentDbContext().addTable(TableImpl.initializeFromContext(context.currentTableContext()));
     }
 }
