@@ -40,7 +40,7 @@ public class DatabaseCacheImpl implements DatabaseCache {
         }
 
         public LRUCache() {
-            this(5);
+            this(5_000);
         }
 
         @Override
