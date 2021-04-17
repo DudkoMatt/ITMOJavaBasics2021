@@ -26,6 +26,12 @@ public class DatabaseImpl implements Database {
             throw new DatabaseException("Database already exists");
         }
 
+        try {
+            Files.createDirectory(Paths.get(databaseRoot.toString(), dbName));
+        } catch (IOException e) {
+            throw new DatabaseException("Cannot create directory for a database", e);
+        }
+
         return new DatabaseImpl(dbName, databaseRoot);
     }
 
@@ -33,16 +39,10 @@ public class DatabaseImpl implements Database {
     private final Path databaseRootPath;
     private final Map<String, Table> tables;
 
-    private DatabaseImpl(String dbName, Path databaseRoot) throws DatabaseException {
+    private DatabaseImpl(String dbName, Path databaseRoot) {
         this.dbName = dbName;
         this.databaseRootPath = Paths.get(databaseRoot.toString(), dbName);
         this.tables = new HashMap<>();
-
-        try {
-            Files.createDirectory(databaseRootPath);
-        } catch (IOException e) {
-            throw new DatabaseException("Cannot create directory for a database", e);
-        }
     }
 
     public static Database initializeFromContext(DatabaseInitializationContext context) {

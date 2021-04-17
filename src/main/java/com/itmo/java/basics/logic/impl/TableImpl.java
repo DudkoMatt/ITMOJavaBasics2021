@@ -24,6 +24,12 @@ public class TableImpl implements Table {
             throw new DatabaseException("Table already exists");
         }
 
+        try {
+            Files.createDirectory(Paths.get(pathToDatabaseRoot.toString(), tableName));
+        } catch (IOException e) {
+            throw new DatabaseException("Cannot create directory for a table", e);
+        }
+
         return new CachingTable(new TableImpl(tableName, pathToDatabaseRoot, tableIndex));
     }
 
@@ -56,12 +62,6 @@ public class TableImpl implements Table {
         this.tableName = tableName;
         this.tableIndex = tableIndex;
         this.tableRootPath = Paths.get(pathToDatabaseRoot.toString(), tableName);
-
-        try {
-            Files.createDirectory(tableRootPath);
-        } catch (IOException e) {
-            throw new DatabaseException("Cannot create directory for a table", e);
-        }
 
         this.lastCreatedSegment = SegmentImpl.create(
                 SegmentImpl.createSegmentName(tableName), tableRootPath

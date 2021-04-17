@@ -30,6 +30,16 @@ public class SegmentImpl implements Segment {
             throw new DatabaseException("Segment already exists");
         }
 
+        Path fullSegmentPath = Paths.get(tableRootPath.toString(), segmentName);
+
+        try {
+            if (!Files.exists(fullSegmentPath)) {
+                Files.createFile(fullSegmentPath);
+            }
+        } catch (IOException e) {
+            throw new DatabaseException("Cannot create a segment", e);
+        }
+
         return new SegmentImpl(segmentName, tableRootPath, new SegmentIndex());
     }
 
@@ -69,14 +79,6 @@ public class SegmentImpl implements Segment {
         this.segmentIndex = segmentIndex;
 
         Path fullSegmentPath = Paths.get(tableRootPath.toString(), segmentName);
-
-        try {
-            if (!Files.exists(fullSegmentPath)) {
-                Files.createFile(fullSegmentPath);
-            }
-        } catch (IOException e) {
-            throw new DatabaseException("Cannot create a segment", e);
-        }
 
         try {
             this.dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(fullSegmentPath, APPEND));
