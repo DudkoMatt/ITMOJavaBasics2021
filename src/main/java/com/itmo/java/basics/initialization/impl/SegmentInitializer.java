@@ -46,7 +46,7 @@ public class SegmentInitializer implements Initializer {
 
         Segment segment = SegmentImpl.initializeFromContext(new SegmentInitializationContextImpl(
                 context.currentSegmentContext().getSegmentName(),
-                context.currentSegmentContext().getSegmentPath(),
+                context.currentSegmentContext().getSegmentPath().getParent(),
                 context.currentSegmentContext().getCurrentSize(),
                 segmentIndex
         ));
