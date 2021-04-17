@@ -37,13 +37,10 @@ public class SegmentImpl implements Segment {
         try {
             return SegmentImpl.builder()
                     .segmentName(context.getSegmentName())
-                    .tableRootPath(context.getSegmentPath())
+                    .tableRootPath(context.getSegmentPath().getParent())
                     .segmentIndex(context.getIndex())
                     .bytesWritten(context.getCurrentSize())
-                    .dataOutputStream(new DatabaseOutputStream(Files.newOutputStream(
-                                Paths.get(context.getSegmentPath().toString(), context.getSegmentName()), APPEND)
-                            )
-                    )
+                    .dataOutputStream(new DatabaseOutputStream(Files.newOutputStream(context.getSegmentPath(), APPEND)))
                     .build();
         } catch (IOException e) {
             // ToDO: throwing unchecked exception in that case?
