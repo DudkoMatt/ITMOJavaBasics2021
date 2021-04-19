@@ -24,7 +24,7 @@ public class SegmentInitializationContextImpl implements SegmentInitializationCo
 
     // ToDO: current size must be long
     public SegmentInitializationContextImpl(String segmentName, Path tablePath, long currentSize) {
-        this(segmentName, Paths.get(tablePath.toString(), segmentName), currentSize, null);
+        this(segmentName, Paths.get(tablePath.toString(), segmentName), currentSize, new SegmentIndex());
     }
 
     @Override

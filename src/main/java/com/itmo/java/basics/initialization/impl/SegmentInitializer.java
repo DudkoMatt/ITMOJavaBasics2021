@@ -26,7 +26,7 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-        SegmentIndex segmentIndex = new SegmentIndex();
+        SegmentIndex segmentIndex = context.currentSegmentContext().getIndex();
         HashSet<String> presentKeys = new HashSet<>();
 
         try (DatabaseInputStream databaseInputStream = new DatabaseInputStream(new FileInputStream(context.currentSegmentContext().getSegmentPath().toFile()))) {
@@ -44,12 +44,7 @@ public class SegmentInitializer implements Initializer {
             throw new DatabaseException("Cannot create FileInputStream", e);
         }
 
-        Segment segment = SegmentImpl.initializeFromContext(new SegmentInitializationContextImpl(
-                context.currentSegmentContext().getSegmentName(),
-                context.currentSegmentContext().getSegmentPath(),
-                context.currentSegmentContext().getCurrentSize(),
-                segmentIndex
-        ));
+        Segment segment = SegmentImpl.initializeFromContext(context.currentSegmentContext());
 
         context.currentTableContext().updateCurrentSegment(segment);
 
