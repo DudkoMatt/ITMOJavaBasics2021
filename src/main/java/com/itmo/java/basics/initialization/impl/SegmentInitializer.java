@@ -26,19 +26,25 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-        SegmentIndex segmentIndex = context.currentSegmentContext().getIndex();
         HashSet<String> presentKeys = new HashSet<>();
 
         try (DatabaseInputStream databaseInputStream = new DatabaseInputStream(new FileInputStream(context.currentSegmentContext().getSegmentPath().toFile()))) {
             while (databaseInputStream.available() > 0) {
                 long currentStreamPosition = databaseInputStream.getReadBytes();
-                Optional<DatabaseRecord> optionalDatabaseRecord = databaseInputStream.readDbUnit();
+
+                // ToDO: no need to add removed keys..?
+//                Optional<DatabaseRecord> optionalDatabaseRecord = databaseInputStream.readDbUnit();
+
+                databaseInputStream.readDbUnit();
                 String lastKey = new String(databaseInputStream.getLastKeyObject());
-                segmentIndex.onIndexedEntityUpdated(lastKey, new SegmentOffsetInfoImpl(currentStreamPosition));
-                optionalDatabaseRecord.ifPresentOrElse(
-                        (databaseRecord) -> presentKeys.add(lastKey),
-                        () -> presentKeys.remove(lastKey)
-                );
+                context.currentSegmentContext().getIndex().onIndexedEntityUpdated(lastKey, new SegmentOffsetInfoImpl(currentStreamPosition));
+                presentKeys.add(lastKey);
+
+                // ToDO: no need to add removed keys..?
+//                optionalDatabaseRecord.ifPresentOrElse(
+//                        (databaseRecord) -> presentKeys.add(lastKey),
+//                        () -> presentKeys.remove(lastKey)
+//                );
             }
         } catch (IOException e) {
             throw new DatabaseException("Cannot create FileInputStream", e);
