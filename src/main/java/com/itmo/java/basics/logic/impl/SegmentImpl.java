@@ -53,7 +53,7 @@ public class SegmentImpl implements Segment {
                     .dataOutputStream(new DatabaseOutputStream(Files.newOutputStream(context.getSegmentPath(), APPEND)))
                     .build();
         } catch (IOException e) {
-            // ToDO: throwing unchecked exception in that case?
+            // ToDO: throwing unchecked exception in that case?  --> See SegmentImpl() ToDO
             throw new RuntimeException(e);
         }
     }
@@ -80,6 +80,8 @@ public class SegmentImpl implements Segment {
 
         Path fullSegmentPath = Paths.get(tableRootPath.toString(), segmentName);
 
+
+        // ToDO: можно переместить и создавать каждый раз в writeToFile
         try {
             this.dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(fullSegmentPath, APPEND));
         } catch (IOException e) {
@@ -139,7 +141,7 @@ public class SegmentImpl implements Segment {
 
         Optional<DatabaseRecord> optionalDatabaseRecord = dataInputStream.readDbUnit();
 
-        if (optionalDatabaseRecord.isEmpty()) {
+        if (optionalDatabaseRecord.isEmpty() || !optionalDatabaseRecord.get().isValuePresented()) {
             return Optional.empty();
         }
 

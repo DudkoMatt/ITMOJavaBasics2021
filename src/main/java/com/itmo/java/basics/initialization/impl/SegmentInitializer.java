@@ -1,7 +1,6 @@
 package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
-import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.index.impl.SegmentOffsetInfoImpl;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
@@ -29,15 +28,17 @@ public class SegmentInitializer implements Initializer {
         HashSet<String> presentKeys = new HashSet<>();
 
         try (DatabaseInputStream databaseInputStream = new DatabaseInputStream(new FileInputStream(context.currentSegmentContext().getSegmentPath().toFile()))) {
+            long currentPosition = 0;
             while (databaseInputStream.available() > 0) {
-                long currentStreamPosition = databaseInputStream.getReadBytes();
+                Optional<DatabaseRecord> optionalDatabaseRecord = databaseInputStream.readDbUnit();
 
-                // ToDO: no need to add removed keys..?
-//                Optional<DatabaseRecord> optionalDatabaseRecord = databaseInputStream.readDbUnit();
+                if (optionalDatabaseRecord.isEmpty()) {
+                    throw new DatabaseException("DatabaseInputStream should not return optional empty");
+                }
 
-                databaseInputStream.readDbUnit();
-                String lastKey = new String(databaseInputStream.getLastKeyObject());
-                context.currentSegmentContext().getIndex().onIndexedEntityUpdated(lastKey, new SegmentOffsetInfoImpl(currentStreamPosition));
+                DatabaseRecord databaseRecord = optionalDatabaseRecord.get();
+                String lastKey = new String(databaseRecord.getKey());
+                context.currentSegmentContext().getIndex().onIndexedEntityUpdated(lastKey, new SegmentOffsetInfoImpl(currentPosition));
                 presentKeys.add(lastKey);
 
                 // ToDO: no need to add removed keys..?
@@ -45,6 +46,8 @@ public class SegmentInitializer implements Initializer {
 //                        (databaseRecord) -> presentKeys.add(lastKey),
 //                        () -> presentKeys.remove(lastKey)
 //                );
+
+                currentPosition += databaseRecord.size();
             }
         } catch (IOException e) {
             throw new DatabaseException("Cannot create FileInputStream", e);
