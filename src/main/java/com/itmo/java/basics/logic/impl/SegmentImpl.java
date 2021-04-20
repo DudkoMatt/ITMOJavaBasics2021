@@ -44,18 +44,12 @@ public class SegmentImpl implements Segment {
     }
 
     public static Segment initializeFromContext(SegmentInitializationContext context) {
-        try {
-            return SegmentImpl.builder()
-                    .segmentName(context.getSegmentName())
-                    .tableRootPath(context.getSegmentPath().getParent())
-                    .segmentIndex(context.getIndex())
-                    .bytesWritten(context.getCurrentSize())
-                    .dataOutputStream(new DatabaseOutputStream(Files.newOutputStream(context.getSegmentPath(), APPEND)))
-                    .build();
-        } catch (IOException e) {
-            // ToDO: throwing unchecked exception in that case?  --> See SegmentImpl() ToDO
-            throw new RuntimeException(e);
-        }
+        return SegmentImpl.builder()
+                .segmentName(context.getSegmentName())
+                .tableRootPath(context.getSegmentPath().getParent())
+                .segmentIndex(context.getIndex())
+                .bytesWritten(context.getCurrentSize())
+                .build();
     }
 
     static String createSegmentName(String tableName) {
@@ -69,24 +63,13 @@ public class SegmentImpl implements Segment {
     private long bytesWritten;
 
     private final SegmentIndex segmentIndex;
-    private final DatabaseOutputStream dataOutputStream;
 
-    private SegmentImpl(String segmentName, Path tableRootPath, SegmentIndex segmentIndex) throws DatabaseException {
+    private SegmentImpl(String segmentName, Path tableRootPath, SegmentIndex segmentIndex) {
         this.segmentName = segmentName;
         this.tableRootPath = tableRootPath;
         this.bytesWritten = 0;
 
         this.segmentIndex = segmentIndex;
-
-        Path fullSegmentPath = Paths.get(tableRootPath.toString(), segmentName);
-
-
-        // ToDO: можно переместить и создавать каждый раз в writeToFile
-        try {
-            this.dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(fullSegmentPath, APPEND));
-        } catch (IOException e) {
-            throw new DatabaseException("Cannot create an I/O stream", e);
-        }
     }
 
     @Override
@@ -99,15 +82,15 @@ public class SegmentImpl implements Segment {
             return false;
         }
 
+        DatabaseOutputStream dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(Paths.get(tableRootPath.toString(), segmentName), APPEND));
+
         dataOutputStream.write(databaseRecord);
 
         segmentIndex.onIndexedEntityUpdated(new String(databaseRecord.getKey()), new SegmentOffsetInfoImpl(bytesWritten));
         bytesWritten += databaseRecord.size();
 
-        if (isReadOnly()) {
-            dataOutputStream.flush();
-            dataOutputStream.close();
-        }
+        dataOutputStream.flush();
+        dataOutputStream.close();
 
         return true;
     }
