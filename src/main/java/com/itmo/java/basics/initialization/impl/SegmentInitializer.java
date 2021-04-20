@@ -26,11 +26,17 @@ public class SegmentInitializer implements Initializer {
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
         HashSet<String> presentKeys = new HashSet<>();
+        long currentPosition = 0;
 
         try (DatabaseInputStream databaseInputStream = new DatabaseInputStream(new FileInputStream(context.currentSegmentContext().getSegmentPath().toFile()))) {
-            long currentPosition = 0;
             while (databaseInputStream.available() > 0) {
-                Optional<DatabaseRecord> optionalDatabaseRecord = databaseInputStream.readDbUnit();
+                Optional<DatabaseRecord> optionalDatabaseRecord;
+
+                try {
+                    optionalDatabaseRecord = databaseInputStream.readDbUnit();
+                } catch (IOException e) {
+                    break;
+                }
 
                 if (optionalDatabaseRecord.isEmpty()) {
                     throw new DatabaseException("DatabaseInputStream should not return optional empty");
@@ -53,7 +59,14 @@ public class SegmentInitializer implements Initializer {
             throw new DatabaseException("Cannot create FileInputStream", e);
         }
 
-        Segment segment = SegmentImpl.initializeFromContext(context.currentSegmentContext());
+        Segment segment = SegmentImpl.initializeFromContext(
+                new SegmentInitializationContextImpl(
+                        context.currentSegmentContext().getSegmentName(),
+                        context.currentSegmentContext().getSegmentPath(),
+                        currentPosition,
+                        context.currentSegmentContext().getIndex()
+                )
+        );
 
         context.currentTableContext().updateCurrentSegment(segment);
 
