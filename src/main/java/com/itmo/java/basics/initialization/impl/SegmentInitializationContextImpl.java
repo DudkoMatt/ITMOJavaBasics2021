@@ -6,15 +6,12 @@ import com.itmo.java.basics.initialization.SegmentInitializationContext;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-// ToDO
 public class SegmentInitializationContextImpl implements SegmentInitializationContext {
     private final String segmentName;
     private final Path segmentPath;
     private final SegmentIndex index;
-    // ToDO: current size must be long
     private final long currentSize;
 
-    // ToDO: current size must be long
     public SegmentInitializationContextImpl(String segmentName, Path segmentPath, long currentSize, SegmentIndex index) {
         this.segmentName = segmentName;
         this.segmentPath = segmentPath;
@@ -22,7 +19,6 @@ public class SegmentInitializationContextImpl implements SegmentInitializationCo
         this.index = index;
     }
 
-    // ToDO: current size must be long
     public SegmentInitializationContextImpl(String segmentName, Path tablePath, long currentSize) {
         this(segmentName, Paths.get(tablePath.toString(), segmentName), currentSize, new SegmentIndex());
     }

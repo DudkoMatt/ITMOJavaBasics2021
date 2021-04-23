@@ -5,9 +5,6 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.DatabaseInitializationContext;
 import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,9 +15,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 public class DatabaseImpl implements Database {
+    private final String dbName;
+    private final Path databaseRootPath;
+    private final Map<String, Table> tables;
+
+    private DatabaseImpl(String dbName, Path databaseRoot) {
+        this(dbName, databaseRoot, new HashMap<>());
+    }
+
+    private DatabaseImpl(String dbName, Path databaseRoot, Map<String, Table> tables) {
+        this.dbName = dbName;
+        this.databaseRootPath = Paths.get(databaseRoot.toString(), dbName);
+        this.tables = tables;
+    }
+
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
         if (new File(databaseRoot.toString(), dbName).exists()) {
             throw new DatabaseException("Database already exists");
@@ -35,22 +44,8 @@ public class DatabaseImpl implements Database {
         return new DatabaseImpl(dbName, databaseRoot);
     }
 
-    private final String dbName;
-    private final Path databaseRootPath;
-    private final Map<String, Table> tables;
-
-    private DatabaseImpl(String dbName, Path databaseRoot) {
-        this.dbName = dbName;
-        this.databaseRootPath = Paths.get(databaseRoot.toString(), dbName);
-        this.tables = new HashMap<>();
-    }
-
     public static Database initializeFromContext(DatabaseInitializationContext context) {
-        return DatabaseImpl.builder()
-                .dbName(context.getDbName())
-                .databaseRootPath(context.getDatabasePath())
-                .tables(context.getTables())
-                .build();
+        return new DatabaseImpl(context.getDbName(), context.getDatabasePath(), context.getTables());
     }
 
     @Override

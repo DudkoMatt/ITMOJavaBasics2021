@@ -48,11 +48,7 @@ public class TableInitializer implements Initializer {
                             .executionEnvironment(context.executionEnvironment())
                             .currentDatabaseContext(context.currentDbContext())
                             .currentTableContext(context.currentTableContext())
-                            .currentSegmentContext(
-                                    new SegmentInitializationContextImpl(
-                                            segment_file.getName(), workingPath, segment_file.length()
-                                    )
-                            )
+                            .currentSegmentContext(new SegmentInitializationContextImpl(segment_file.getName(), workingPath, segment_file.length()))
                             .build()
             );
         }

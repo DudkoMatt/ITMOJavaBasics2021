@@ -5,9 +5,6 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.logic.Segment;
 import com.itmo.java.basics.initialization.TableInitializationContext;
 import com.itmo.java.basics.logic.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,9 +13,29 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 public class TableImpl implements Table {
+    private final String tableName;
+    private final Path tableRootPath;
+    private final TableIndex tableIndex;
+    private Segment lastCreatedSegment;
+
+    private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
+        this.tableName = tableName;
+        this.tableRootPath = Paths.get(pathToDatabaseRoot.toString(), tableName);
+        this.tableIndex = tableIndex;
+
+        this.lastCreatedSegment = SegmentImpl.create(
+                SegmentImpl.createSegmentName(tableName), tableRootPath
+        );
+    }
+
+    private TableImpl(String tableName, Path tableRootPath,  TableIndex tableIndex, Segment lastCreatedSegment) {
+        this.tableName = tableName;
+        this.tableRootPath = tableRootPath;
+        this.tableIndex = tableIndex;
+        this.lastCreatedSegment = lastCreatedSegment;
+    }
+
     public static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
         if (new File(pathToDatabaseRoot.toString(), tableName).exists()) {
             throw new DatabaseException("Table already exists");
@@ -38,34 +55,11 @@ public class TableImpl implements Table {
             try {
                 context.updateCurrentSegment(SegmentImpl.create(SegmentImpl.createSegmentName(context.getTableName()), context.getTablePath().getParent()));
             } catch (DatabaseException e) {
-                // ToDO: throwing unchecked exception in that case?
-                throw new RuntimeException(e);
+                throw new RuntimeException("Cannot create new segment during initialization", e);
             }
         }
 
-        return new CachingTable(
-                TableImpl.builder()
-                        .tableName(context.getTableName())
-                        .tableRootPath(context.getTablePath())
-                        .tableIndex(context.getTableIndex())
-                        .lastCreatedSegment(context.getCurrentSegment())
-                        .build()
-        );
-    }
-
-    private final String tableName;
-    private final TableIndex tableIndex;
-    private final Path tableRootPath;
-    private Segment lastCreatedSegment;
-
-    private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
-        this.tableName = tableName;
-        this.tableIndex = tableIndex;
-        this.tableRootPath = Paths.get(pathToDatabaseRoot.toString(), tableName);
-
-        this.lastCreatedSegment = SegmentImpl.create(
-                SegmentImpl.createSegmentName(tableName), tableRootPath
-        );
+        return new CachingTable(new TableImpl(context.getTableName(), context.getTablePath(), context.getTableIndex(), context.getCurrentSegment()));
     }
 
     @Override

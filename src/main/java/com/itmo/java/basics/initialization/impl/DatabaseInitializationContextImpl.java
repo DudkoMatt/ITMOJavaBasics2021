@@ -11,7 +11,7 @@ import java.util.Map;
 public class DatabaseInitializationContextImpl implements DatabaseInitializationContext {
     private final String dbName;
     private final Path databaseRoot;
-    private final HashMap<String, Table> tables;
+    private final Map<String, Table> tables;
 
     public DatabaseInitializationContextImpl(String dbName, Path databaseRoot) {
         this.dbName = dbName;

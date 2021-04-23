@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class DatabaseInitializer implements Initializer {
     private final TableInitializer tableInitializer;
@@ -37,18 +36,12 @@ public class DatabaseInitializer implements Initializer {
                         InitializationContextImpl.builder()
                                 .executionEnvironment(initialContext.executionEnvironment())
                                 .currentDatabaseContext(initialContext.currentDbContext())
-                                .currentTableContext(
-                                        new TableInitializationContextImpl(
-                                                new File(table_directory.toString()).getName(), workingPath, new TableIndex()
-                                        )
-                                )
+                                .currentTableContext(new TableInitializationContextImpl(new File(table_directory.toString()).getName(), workingPath, new TableIndex()))
                                 .build()
                 );
             }
 
-            initialContext.executionEnvironment().addDatabase(
-                    DatabaseImpl.initializeFromContext(initialContext.currentDbContext())
-            );
+            initialContext.executionEnvironment().addDatabase(DatabaseImpl.initializeFromContext(initialContext.currentDbContext()));
         } catch (IOException e) {
             throw new DatabaseException("Cannot iterate over directory", e);
         }

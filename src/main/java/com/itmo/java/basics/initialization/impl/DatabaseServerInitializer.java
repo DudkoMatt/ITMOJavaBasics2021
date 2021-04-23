@@ -43,11 +43,7 @@ public class DatabaseServerInitializer implements Initializer {
                 databaseInitializer.perform(
                         InitializationContextImpl.builder()
                                 .executionEnvironment(context.executionEnvironment())
-                                .currentDatabaseContext(
-                                        new DatabaseInitializationContextImpl(
-                                            new File(db_directory.toString()).getName(), workingPath
-                                        )
-                                )
+                                .currentDatabaseContext(new DatabaseInitializationContextImpl(new File(db_directory.toString()).getName(), workingPath))
                                 .build()
                 );
             }

@@ -46,13 +46,6 @@ public class SegmentInitializer implements Initializer {
                 String lastKey = new String(databaseRecord.getKey());
                 context.currentSegmentContext().getIndex().onIndexedEntityUpdated(lastKey, new SegmentOffsetInfoImpl(currentPosition));
                 presentKeys.add(lastKey);
-
-                // ToDO: no need to add removed keys..?
-//                optionalDatabaseRecord.ifPresentOrElse(
-//                        (databaseRecord) -> presentKeys.add(lastKey),
-//                        () -> presentKeys.remove(lastKey)
-//                );
-
                 currentPosition += databaseRecord.size();
             }
         } catch (IOException e) {
