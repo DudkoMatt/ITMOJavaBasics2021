@@ -32,7 +32,7 @@ public class DatabaseCacheImpl implements DatabaseCache {
     }
 
     public static class LRUCache<K, V> extends LinkedHashMap<K, V> {
-        private int capacity;
+        private final int capacity;
 
         public LRUCache(int initialCapacity) {
             super(initialCapacity, 1f, true);
@@ -46,10 +46,6 @@ public class DatabaseCacheImpl implements DatabaseCache {
         @Override
         protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
             return size() > capacity;
-        }
-
-        public void setCapacity(int capacity) {
-            this.capacity = capacity;
         }
     }
 }
