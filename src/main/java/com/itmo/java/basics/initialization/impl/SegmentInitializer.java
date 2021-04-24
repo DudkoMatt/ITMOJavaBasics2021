@@ -30,16 +30,10 @@ public class SegmentInitializer implements Initializer {
 
         try (DatabaseInputStream databaseInputStream = new DatabaseInputStream(new FileInputStream(context.currentSegmentContext().getSegmentPath().toFile()))) {
             while (databaseInputStream.available() > 0) {
-                Optional<DatabaseRecord> optionalDatabaseRecord;
-
-                try {
-                    optionalDatabaseRecord = databaseInputStream.readDbUnit();
-                } catch (IOException e) {
-                    break;
-                }
+                Optional<DatabaseRecord> optionalDatabaseRecord = databaseInputStream.readDbUnit();
 
                 if (optionalDatabaseRecord.isEmpty()) {
-                    throw new DatabaseException("DatabaseInputStream should not return optional empty");
+                    break;  // EOF
                 }
 
                 DatabaseRecord databaseRecord = optionalDatabaseRecord.get();
