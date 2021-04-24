@@ -40,12 +40,14 @@ public class DatabaseServerInitializer implements Initializer {
 
         try {
             for (Path db_directory : Files.newDirectoryStream(workingPath)) {
-                databaseInitializer.perform(
-                        InitializationContextImpl.builder()
-                                .executionEnvironment(context.executionEnvironment())
-                                .currentDatabaseContext(new DatabaseInitializationContextImpl(new File(db_directory.toString()).getName(), workingPath))
-                                .build()
-                );
+                if (Files.isDirectory(db_directory)) {
+                    databaseInitializer.perform(
+                            InitializationContextImpl.builder()
+                                    .executionEnvironment(context.executionEnvironment())
+                                    .currentDatabaseContext(new DatabaseInitializationContextImpl(new File(db_directory.toString()).getName(), workingPath))
+                                    .build()
+                    );
+                }
             }
         } catch (IOException e) {
             throw new DatabaseException("Cannot iterate over directory", e);

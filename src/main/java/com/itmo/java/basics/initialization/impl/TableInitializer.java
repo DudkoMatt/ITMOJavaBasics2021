@@ -43,14 +43,16 @@ public class TableInitializer implements Initializer {
         });
 
         for (File segment_file : files) {
-            segmentInitializer.perform(
-                    InitializationContextImpl.builder()
-                            .executionEnvironment(context.executionEnvironment())
-                            .currentDatabaseContext(context.currentDbContext())
-                            .currentTableContext(context.currentTableContext())
-                            .currentSegmentContext(new SegmentInitializationContextImpl(segment_file.getName(), workingPath, segment_file.length()))
-                            .build()
-            );
+            if (segment_file.isFile()) {
+                segmentInitializer.perform(
+                        InitializationContextImpl.builder()
+                                .executionEnvironment(context.executionEnvironment())
+                                .currentDatabaseContext(context.currentDbContext())
+                                .currentTableContext(context.currentTableContext())
+                                .currentSegmentContext(new SegmentInitializationContextImpl(segment_file.getName(), workingPath, segment_file.length()))
+                                .build()
+                );
+            }
         }
 
         context.currentDbContext().addTable(TableImpl.initializeFromContext(context.currentTableContext()));

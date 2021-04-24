@@ -32,13 +32,15 @@ public class DatabaseInitializer implements Initializer {
 
         try {
             for (Path table_directory : Files.newDirectoryStream(workingPath)) {
-                tableInitializer.perform(
-                        InitializationContextImpl.builder()
-                                .executionEnvironment(initialContext.executionEnvironment())
-                                .currentDatabaseContext(initialContext.currentDbContext())
-                                .currentTableContext(new TableInitializationContextImpl(new File(table_directory.toString()).getName(), workingPath, new TableIndex()))
-                                .build()
-                );
+                if (Files.isDirectory(table_directory)) {
+                    tableInitializer.perform(
+                            InitializationContextImpl.builder()
+                                    .executionEnvironment(initialContext.executionEnvironment())
+                                    .currentDatabaseContext(initialContext.currentDbContext())
+                                    .currentTableContext(new TableInitializationContextImpl(new File(table_directory.toString()).getName(), workingPath, new TableIndex()))
+                                    .build()
+                    );
+                }
             }
 
             initialContext.executionEnvironment().addDatabase(DatabaseImpl.initializeFromContext(initialContext.currentDbContext()));
