@@ -76,15 +76,14 @@ public class SegmentImpl implements Segment {
             return false;
         }
 
-        DatabaseOutputStream dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(Paths.get(tableRootPath.toString(), segmentName), APPEND));
+        try (DatabaseOutputStream dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(Paths.get(tableRootPath.toString(), segmentName), APPEND))) {
+            dataOutputStream.write(databaseRecord);
 
-        dataOutputStream.write(databaseRecord);
+            segmentIndex.onIndexedEntityUpdated(new String(databaseRecord.getKey()), new SegmentOffsetInfoImpl(bytesWritten));
+            bytesWritten += databaseRecord.size();
 
-        segmentIndex.onIndexedEntityUpdated(new String(databaseRecord.getKey()), new SegmentOffsetInfoImpl(bytesWritten));
-        bytesWritten += databaseRecord.size();
-
-        dataOutputStream.flush();
-        dataOutputStream.close();
+            dataOutputStream.flush();
+        }
 
         return true;
     }
