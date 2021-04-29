@@ -12,35 +12,40 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class DatabaseImpl implements Database {
+    private final String dbName;
+    private final Path databaseRootPath;
+    private final Map<String, Table> tables;
+
+    private DatabaseImpl(String dbName, Path databaseRoot) {
+        this(dbName, databaseRoot, new HashMap<>());
+    }
+
+    private DatabaseImpl(String dbName, Path databaseRoot, Map<String, Table> tables) {
+        this.dbName = dbName;
+        this.databaseRootPath = Paths.get(databaseRoot.toString(), dbName);
+        this.tables = tables;
+    }
+
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
         if (new File(databaseRoot.toString(), dbName).exists()) {
             throw new DatabaseException("Database already exists");
         }
 
-        return new DatabaseImpl(dbName, databaseRoot);
-    }
-
-    private final String dbName;
-    private final Path databaseRootPath;
-    private final HashMap<String, Table> tables;
-
-    private DatabaseImpl(String dbName, Path databaseRoot) throws DatabaseException {
-        this.dbName = dbName;
-        this.databaseRootPath = Paths.get(databaseRoot.toString(), dbName);
-        this.tables = new HashMap<>();
-
         try {
-            Files.createDirectory(databaseRootPath);
+            Files.createDirectory(Paths.get(databaseRoot.toString(), dbName));
         } catch (IOException e) {
             throw new DatabaseException("Cannot create directory for a database", e);
         }
+
+        return new DatabaseImpl(dbName, databaseRoot);
     }
 
     public static Database initializeFromContext(DatabaseInitializationContext context) {
-        return null;
+        return new DatabaseImpl(context.getDbName(), context.getDatabasePath(), context.getTables());
     }
 
     @Override

@@ -20,37 +20,30 @@ import java.util.Optional;
 import static java.nio.file.StandardOpenOption.APPEND;
 
 public class SegmentImpl implements Segment {
-    public static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
-        if (new File(tableRootPath.toString(), segmentName).exists()) {
-            throw new DatabaseException("Segment already exists");
-        }
-
-        return new SegmentImpl(segmentName, tableRootPath);
-    }
-
-    public static Segment initializeFromContext(SegmentInitializationContext context) {
-        return null;
-    }
-
-    static String createSegmentName(String tableName) {
-        return tableName + "_" + System.currentTimeMillis();
-    }
-
     private static final int MAX_SIZE_IN_BYTES = 100_000;
 
     private final String segmentName;
     private final Path tableRootPath;
-    private int bytesWritten;
+    private long bytesWritten;
 
     private final SegmentIndex segmentIndex;
-    private final DatabaseOutputStream dataOutputStream;
 
-    private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
+    private SegmentImpl(String segmentName, Path tableRootPath, SegmentIndex segmentIndex) {
         this.segmentName = segmentName;
         this.tableRootPath = tableRootPath;
+        this.segmentIndex = segmentIndex;
         this.bytesWritten = 0;
+    }
 
-        this.segmentIndex = new SegmentIndex();
+    private SegmentImpl(String segmentName, Path tableRootPath, SegmentIndex segmentIndex, long bytesWritten) {
+        this(segmentName, tableRootPath, segmentIndex);
+        this.bytesWritten = bytesWritten;
+    }
+
+    public static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
+        if (new File(tableRootPath.toString(), segmentName).exists()) {
+            throw new DatabaseException("Segment already exists");
+        }
 
         Path fullSegmentPath = Paths.get(tableRootPath.toString(), segmentName);
 
@@ -62,11 +55,15 @@ public class SegmentImpl implements Segment {
             throw new DatabaseException("Cannot create a segment", e);
         }
 
-        try {
-            this.dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(fullSegmentPath, APPEND));
-        } catch (IOException e) {
-            throw new DatabaseException("Cannot create an I/O stream", e);
-        }
+        return new SegmentImpl(segmentName, tableRootPath, new SegmentIndex());
+    }
+
+    static String createSegmentName(String tableName) {
+        return tableName + "_" + System.currentTimeMillis();
+    }
+
+    public static Segment initializeFromContext(SegmentInitializationContext context) {
+        return new SegmentImpl(context.getSegmentName(), context.getSegmentPath().getParent(), context.getIndex(), context.getCurrentSize());
     }
 
     @Override
@@ -79,14 +76,13 @@ public class SegmentImpl implements Segment {
             return false;
         }
 
-        dataOutputStream.write(databaseRecord);
+        try (DatabaseOutputStream dataOutputStream = new DatabaseOutputStream(Files.newOutputStream(Paths.get(tableRootPath.toString(), segmentName), APPEND))) {
+            dataOutputStream.write(databaseRecord);
 
-        segmentIndex.onIndexedEntityUpdated(new String(databaseRecord.getKey()), new SegmentOffsetInfoImpl(bytesWritten));
-        bytesWritten += databaseRecord.size();
+            segmentIndex.onIndexedEntityUpdated(new String(databaseRecord.getKey()), new SegmentOffsetInfoImpl(bytesWritten));
+            bytesWritten += databaseRecord.size();
 
-        if (isReadOnly()) {
             dataOutputStream.flush();
-            dataOutputStream.close();
         }
 
         return true;
@@ -121,7 +117,7 @@ public class SegmentImpl implements Segment {
 
         Optional<DatabaseRecord> optionalDatabaseRecord = dataInputStream.readDbUnit();
 
-        if (optionalDatabaseRecord.isEmpty()) {
+        if (optionalDatabaseRecord.isEmpty() || !optionalDatabaseRecord.get().isValuePresented()) {
             return Optional.empty();
         }
 

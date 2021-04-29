@@ -14,37 +14,52 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 public class TableImpl implements Table {
+    private final String tableName;
+    private final Path tableRootPath;
+    private final TableIndex tableIndex;
+    private Segment lastCreatedSegment;
+
+    private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
+        this.tableName = tableName;
+        this.tableRootPath = Paths.get(pathToDatabaseRoot.toString(), tableName);
+        this.tableIndex = tableIndex;
+
+        this.lastCreatedSegment = SegmentImpl.create(
+                SegmentImpl.createSegmentName(tableName), tableRootPath
+        );
+    }
+
+    private TableImpl(String tableName, Path tableRootPath,  TableIndex tableIndex, Segment lastCreatedSegment) {
+        this.tableName = tableName;
+        this.tableRootPath = tableRootPath;
+        this.tableIndex = tableIndex;
+        this.lastCreatedSegment = lastCreatedSegment;
+    }
+
     public static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
         if (new File(pathToDatabaseRoot.toString(), tableName).exists()) {
             throw new DatabaseException("Table already exists");
         }
 
-        return new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
-    }
-
-    public static Table initializeFromContext(TableInitializationContext context) {
-        return null;
-    }
-
-    private final String tableName;
-    private final TableIndex tableIndex;
-    private final Path tableRootPath;
-    private Segment lastCreatedSegment;
-
-    private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
-        this.tableName = tableName;
-        this.tableIndex = tableIndex;
-        this.tableRootPath = Paths.get(pathToDatabaseRoot.toString(), tableName);
-
         try {
-            Files.createDirectory(tableRootPath);
+            Files.createDirectory(Paths.get(pathToDatabaseRoot.toString(), tableName));
         } catch (IOException e) {
             throw new DatabaseException("Cannot create directory for a table", e);
         }
 
-        this.lastCreatedSegment = SegmentImpl.create(
-                SegmentImpl.createSegmentName(tableName), tableRootPath
-        );
+        return new CachingTable(new TableImpl(tableName, pathToDatabaseRoot, tableIndex));
+    }
+
+    public static Table initializeFromContext(TableInitializationContext context) {
+        if (context.getCurrentSegment() == null) {
+            try {
+                context.updateCurrentSegment(SegmentImpl.create(SegmentImpl.createSegmentName(context.getTableName()), context.getTablePath().getParent()));
+            } catch (DatabaseException e) {
+                throw new RuntimeException("Cannot create new segment during initialization", e);
+            }
+        }
+
+        return new CachingTable(new TableImpl(context.getTableName(), context.getTablePath(), context.getTableIndex(), context.getCurrentSegment()));
     }
 
     @Override
