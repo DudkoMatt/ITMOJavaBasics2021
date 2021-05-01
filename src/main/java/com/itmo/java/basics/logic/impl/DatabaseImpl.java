@@ -30,6 +30,10 @@ public class DatabaseImpl implements Database {
         this.tables = tables;
     }
 
+    /**
+     * @param databaseRoot путь к директории, которая может содержать несколько БД,
+     *                     поэтому при создании БД необходимо создать директорию внутри databaseRoot.
+     */
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
         if (new File(databaseRoot.toString(), dbName).exists()) {
             throw new DatabaseException("Database already exists");

@@ -4,6 +4,9 @@ import com.itmo.java.basics.logic.WritableDatabaseRecord;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Запись в БД, означающая добавление значения по ключу
+ */
 public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     private final String key;

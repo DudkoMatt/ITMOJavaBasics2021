@@ -19,8 +19,15 @@ public class SegmentInitializationContextImpl implements SegmentInitializationCo
         this.index = index;
     }
 
+    /**
+     * Не используйте этот конструктор. Оставлен для совместимости со старыми тестами.
+     */
     public SegmentInitializationContextImpl(String segmentName, Path tablePath, long currentSize) {
         this(segmentName, Paths.get(tablePath.toString(), segmentName), currentSize, new SegmentIndex());
+    }
+
+    public SegmentInitializationContextImpl(String segmentName, Path tablePath) {
+        this(segmentName, tablePath.resolve(segmentName), 0, new SegmentIndex());
     }
 
     @Override

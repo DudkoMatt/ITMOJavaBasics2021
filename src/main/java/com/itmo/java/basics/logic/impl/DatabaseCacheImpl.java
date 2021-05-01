@@ -6,10 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DatabaseCacheImpl implements DatabaseCache {
+    private static final int CAPACITY = 5_000;
     private final LRUCache<String, byte[]> cache;
 
     public DatabaseCacheImpl() {
-        this.cache = new LRUCache<>();
+        this.cache = new LRUCache<>(CAPACITY);
     }
     
     public DatabaseCacheImpl(int initialCapacity) {
@@ -37,10 +38,6 @@ public class DatabaseCacheImpl implements DatabaseCache {
         public LRUCache(int initialCapacity) {
             super(initialCapacity, 1f, true);
             this.capacity = initialCapacity;
-        }
-
-        public LRUCache() {
-            this(5_000);
         }
 
         @Override

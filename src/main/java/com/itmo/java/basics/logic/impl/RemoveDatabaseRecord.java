@@ -3,6 +3,9 @@ package com.itmo.java.basics.logic.impl;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Запись в БД, означающая удаление значения по ключу
+ */
 public class RemoveDatabaseRecord implements WritableDatabaseRecord {
 
     private final String key;
