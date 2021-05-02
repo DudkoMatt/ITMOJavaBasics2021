@@ -1,5 +1,6 @@
 package com.itmo.java.protocol.model;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -7,6 +8,8 @@ import java.io.OutputStream;
  * Строка
  */
 public class RespBulkString implements RespObject {
+    private final byte[] data;
+
     /**
      * Код объекта
      */
@@ -15,7 +18,7 @@ public class RespBulkString implements RespObject {
     public static final int NULL_STRING_SIZE = -1;
 
     public RespBulkString(byte[] data) {
-        //TODO implement
+        this.data = data;
     }
 
     /**
@@ -35,12 +38,22 @@ public class RespBulkString implements RespObject {
      */
     @Override
     public String asString() {
-        //TODO implement
-        return null;
+        return new String(data);
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        //TODO implement
+        try (DataOutputStream outputStream = new DataOutputStream(os)) {
+            outputStream.write(CODE);
+
+            if (data == null) {
+                outputStream.writeInt(NULL_STRING_SIZE);
+            } else {
+                outputStream.writeInt(data.length);
+                outputStream.write(data);
+            }
+
+            outputStream.write(CRLF);
+        }
     }
 }

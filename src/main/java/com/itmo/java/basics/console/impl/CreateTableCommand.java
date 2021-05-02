@@ -4,14 +4,20 @@ import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.DatabaseCommandArgPositions;
 import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.basics.console.ExecutionEnvironment;
+import com.itmo.java.basics.exceptions.DatabaseException;
+import com.itmo.java.basics.logic.Database;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Команда для создания базы таблицы
  */
 public class CreateTableCommand implements DatabaseCommand {
+    private final ExecutionEnvironment env;
+    private final List<RespObject> commandArgs;
 
     /**
      * Создает команду
@@ -24,7 +30,11 @@ public class CreateTableCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        //TODO implement
+        if (commandArgs.size() != 4)
+            throw new IllegalArgumentException("Wrong number of arguments");
+
+        this.env = env;
+        this.commandArgs = commandArgs;
     }
 
     /**
@@ -34,7 +44,19 @@ public class CreateTableCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        //TODO implement
-        return null;
+        // ToDO: много копипасты
+        String dbName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
+        String tableName = commandArgs.get(DatabaseCommandArgPositions.TABLE_NAME.getPositionIndex()).asString();
+
+        Optional<Database> optionalDatabase = env.getDatabase(dbName);
+        if (optionalDatabase.isEmpty())
+            return DatabaseCommandResult.error(String.format("Database %s does not exist", dbName));
+
+        try {
+            optionalDatabase.get().createTableIfNotExists(tableName);
+            return DatabaseCommandResult.success(String.format("Table %s in database %s created", tableName, dbName).getBytes(StandardCharsets.UTF_8));
+        } catch (DatabaseException e) {
+            return DatabaseCommandResult.error(e);
+        }
     }
 }

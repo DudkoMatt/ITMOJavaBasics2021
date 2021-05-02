@@ -4,15 +4,20 @@ import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.DatabaseCommandArgPositions;
 import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.basics.console.ExecutionEnvironment;
+import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.logic.DatabaseFactory;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
  * Команда для создания базы данных
  */
 public class CreateDatabaseCommand implements DatabaseCommand {
+    private final ExecutionEnvironment env;
+    private final DatabaseFactory factory;
+    private final List<RespObject> commandArgs;
 
     /**
      * Создает команду.
@@ -26,7 +31,12 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateDatabaseCommand(ExecutionEnvironment env, DatabaseFactory factory, List<RespObject> commandArgs) {
-        //TODO implement
+        if (commandArgs.size() != 3)
+            throw new IllegalArgumentException("Wrong number of arguments");
+
+        this.env = env;
+        this.factory = factory;
+        this.commandArgs = commandArgs;
     }
 
     /**
@@ -36,7 +46,11 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        //TODO implement
-        return null;
+        try {
+            env.addDatabase(factory.createNonExistent(commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString(), env.getWorkingPath()));
+        } catch (DatabaseException e) {
+            return DatabaseCommandResult.error(e);
+        }
+        return DatabaseCommandResult.success(String.format("Database %s created", commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString()).getBytes(StandardCharsets.UTF_8));
     }
 }

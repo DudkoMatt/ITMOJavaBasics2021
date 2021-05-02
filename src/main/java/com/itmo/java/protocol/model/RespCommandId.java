@@ -1,5 +1,6 @@
 package com.itmo.java.protocol.model;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -7,6 +8,7 @@ import java.io.OutputStream;
  * Id
  */
 public class RespCommandId implements RespObject {
+    private final int commandId;
 
     /**
      * Код объекта
@@ -14,7 +16,7 @@ public class RespCommandId implements RespObject {
     public static final byte CODE = '!';
 
     public RespCommandId(int commandId) {
-        //TODO implement
+        this.commandId = commandId;
     }
 
     /**
@@ -29,12 +31,15 @@ public class RespCommandId implements RespObject {
 
     @Override
     public String asString() {
-        //TODO implement
-        return null;
+        return String.valueOf(commandId);
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        //TODO implement
+        try (DataOutputStream outputStream = new DataOutputStream(os)) {
+            outputStream.write(CODE);
+            outputStream.writeInt(commandId);
+            outputStream.write(CRLF);
+        }
     }
 }
