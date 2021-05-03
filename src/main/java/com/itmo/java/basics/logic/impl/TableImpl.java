@@ -62,7 +62,7 @@ public class TableImpl implements Table {
     public static Table initializeFromContext(TableInitializationContext context) {
         if (context.getCurrentSegment() == null) {
             try {
-                context.updateCurrentSegment(SegmentImpl.create(SegmentImpl.createSegmentName(context.getTableName()), context.getTablePath().getParent()));
+                context.updateCurrentSegment(SegmentImpl.create(SegmentImpl.createSegmentName(context.getTableName()), context.getTablePath()));
             } catch (DatabaseException e) {
                 throw new RuntimeException("Cannot create new segment during initialization", e);
             }
