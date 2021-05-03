@@ -29,6 +29,7 @@ public class CreateTableKvsCommand implements KvsCommand {
     @Override
     public RespArray serialize() {
         return new RespArray(
+                new RespCommandId(id),
                 new RespBulkString(COMMAND_NAME.getBytes(StandardCharsets.UTF_8)),
                 new RespBulkString(databaseName.getBytes(StandardCharsets.UTF_8)),
                 new RespBulkString(tableName.getBytes(StandardCharsets.UTF_8))
