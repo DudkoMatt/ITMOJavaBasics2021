@@ -48,7 +48,7 @@ public class SetKeyCommand implements DatabaseCommand {
         String dbName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
         String tableName = commandArgs.get(DatabaseCommandArgPositions.TABLE_NAME.getPositionIndex()).asString();
         String key = commandArgs.get(DatabaseCommandArgPositions.KEY.getPositionIndex()).asString();
-        String value = commandArgs.get(DatabaseCommandArgPositions.KEY.getPositionIndex()).asString();
+        String value = commandArgs.get(DatabaseCommandArgPositions.VALUE.getPositionIndex()).asString();
 
         Optional<Database> optionalDatabase = env.getDatabase(dbName);
         if (optionalDatabase.isEmpty())
