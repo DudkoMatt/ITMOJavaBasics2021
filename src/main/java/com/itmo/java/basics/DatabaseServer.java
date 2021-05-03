@@ -41,7 +41,7 @@ public class DatabaseServer {
 
         List<RespObject> objects = message.getObjects();
         RespObject commandName = objects.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex());
-        return executeNextCommand(DatabaseCommands.valueOf(commandName.asString()).getCommand(env, objects.subList(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex() + 1, objects.size())));
+        return executeNextCommand(DatabaseCommands.valueOf(commandName.asString()).getCommand(env, objects));
     }
 
     public CompletableFuture<DatabaseCommandResult> executeNextCommand(DatabaseCommand command) {
