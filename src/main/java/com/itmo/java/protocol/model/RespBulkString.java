@@ -1,6 +1,5 @@
 package com.itmo.java.protocol.model;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +38,7 @@ public class RespBulkString implements RespObject {
      */
     @Override
     public String asString() {
-        return new String(data);
+        return data == null ? null : new String(data);
     }
 
     @Override
