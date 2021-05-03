@@ -1,8 +1,8 @@
 package com.itmo.java.protocol.model;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,14 +50,12 @@ public class RespArray implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        try (DataOutputStream outputStream = new DataOutputStream(os)) {
-            outputStream.write(CODE);
-            outputStream.write(objects.size());
-            outputStream.write(CRLF);
+        os.write(CODE);
+        os.write(String.valueOf(objects.size()).getBytes(StandardCharsets.UTF_8));
+        os.write(CRLF);
 
-            for (RespObject object : objects) {
-                object.write(os);
-            }
+        for (RespObject object : objects) {
+            object.write(os);
         }
     }
 

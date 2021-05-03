@@ -3,6 +3,7 @@ package com.itmo.java.protocol.model;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Строка
@@ -43,17 +44,16 @@ public class RespBulkString implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        try (DataOutputStream outputStream = new DataOutputStream(os)) {
-            outputStream.write(CODE);
+        os.write(CODE);
 
-            if (data == null) {
-                outputStream.writeInt(NULL_STRING_SIZE);
-            } else {
-                outputStream.writeInt(data.length);
-                outputStream.write(data);
-            }
-
-            outputStream.write(CRLF);
+        if (data == null) {
+            os.write(String.valueOf(NULL_STRING_SIZE).getBytes(StandardCharsets.UTF_8));
+        } else {
+            os.write(String.valueOf(data.length).getBytes(StandardCharsets.UTF_8));
+            os.write(CRLF);
+            os.write(data);
         }
+
+        os.write(CRLF);
     }
 }

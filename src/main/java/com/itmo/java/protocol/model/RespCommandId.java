@@ -3,6 +3,8 @@ package com.itmo.java.protocol.model;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Id
@@ -36,10 +38,8 @@ public class RespCommandId implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        try (DataOutputStream outputStream = new DataOutputStream(os)) {
-            outputStream.write(CODE);
-            outputStream.writeInt(commandId);
-            outputStream.write(CRLF);
-        }
+        os.write(CODE);
+        os.write(ByteBuffer.allocate(4).putInt(commandId).array());
+        os.write(CRLF);
     }
 }
