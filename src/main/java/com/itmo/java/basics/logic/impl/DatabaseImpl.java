@@ -26,7 +26,7 @@ public class DatabaseImpl implements Database {
 
     private DatabaseImpl(String dbName, Path databaseRoot, Map<String, Table> tables) {
         this.dbName = dbName;
-        this.databaseRootPath = Paths.get(databaseRoot.toString(), dbName);
+        this.databaseRootPath = databaseRoot;
         this.tables = tables;
     }
 
@@ -45,7 +45,7 @@ public class DatabaseImpl implements Database {
             throw new DatabaseException("Cannot create directory for a database", e);
         }
 
-        return new DatabaseImpl(dbName, databaseRoot);
+        return new DatabaseImpl(dbName, Paths.get(databaseRoot.toString(), dbName));
     }
 
     public static Database initializeFromContext(DatabaseInitializationContext context) {
