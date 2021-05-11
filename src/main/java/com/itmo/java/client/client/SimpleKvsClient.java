@@ -4,6 +4,7 @@ import com.itmo.java.client.command.*;
 import com.itmo.java.client.connection.KvsConnection;
 import com.itmo.java.client.exception.ConnectionException;
 import com.itmo.java.client.exception.DatabaseExecutionException;
+import com.itmo.java.protocol.model.RespObject;
 
 import java.util.function.Supplier;
 
@@ -67,7 +68,13 @@ public class SimpleKvsClient implements KvsClient {
         }
     }
 
-    private String sendCommand(KvsCommand command) throws ConnectionException {
-        return connection.send(command.getCommandId(), command.serialize()).asString();
+    private String sendCommand(KvsCommand command) throws ConnectionException, DatabaseExecutionException {
+        RespObject object = connection.send(command.getCommandId(), command.serialize());
+
+        if (object.isError()) {
+            throw new DatabaseExecutionException(object.asString());
+        }
+
+        return object.asString();
     }
 }
