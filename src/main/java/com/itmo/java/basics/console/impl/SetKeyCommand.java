@@ -50,7 +50,6 @@ public class SetKeyCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        // ToDO: много копипасты
         String dbName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
         String tableName = commandArgs.get(DatabaseCommandArgPositions.TABLE_NAME.getPositionIndex()).asString();
         String key = commandArgs.get(DatabaseCommandArgPositions.KEY.getPositionIndex()).asString();

@@ -1,6 +1,11 @@
 package com.itmo.java.client.client;
 
-import com.itmo.java.client.command.*;
+import com.itmo.java.client.command.CreateDatabaseKvsCommand;
+import com.itmo.java.client.command.CreateTableKvsCommand;
+import com.itmo.java.client.command.DeleteKvsCommand;
+import com.itmo.java.client.command.GetKvsCommand;
+import com.itmo.java.client.command.KvsCommand;
+import com.itmo.java.client.command.SetKvsCommand;
 import com.itmo.java.client.connection.KvsConnection;
 import com.itmo.java.client.exception.ConnectionException;
 import com.itmo.java.client.exception.DatabaseExecutionException;

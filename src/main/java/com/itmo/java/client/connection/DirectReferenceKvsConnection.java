@@ -19,14 +19,11 @@ public class DirectReferenceKvsConnection implements KvsConnection {
     }
 
     @Override
-    public RespObject send(int commandId, RespArray command) throws ConnectionException {  // ToDO: нужно еще DatabaseExecutionException
-        // ToDO: зачем нам счетчик команд
-
+    public RespObject send(int commandId, RespArray command) throws ConnectionException {
         try {
-            // ToDO: точно ли кастим???
             return databaseServer.executeNextCommand(command).get().serialize();
         } catch (ExecutionException | InterruptedException e) {
-            throw new ConnectionException("Connection error", e);  // ToDO: DatabaseExecutionException
+            throw new ConnectionException("Connection error", e);
         }
     }
 

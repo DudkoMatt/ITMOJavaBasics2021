@@ -37,8 +37,6 @@ public class DatabaseServer {
     }
 
     public CompletableFuture<DatabaseCommandResult> executeNextCommand(RespArray message) {
-        // ToDO: зачем нам счетчик команд
-
         List<RespObject> objects = message.getObjects();
         RespObject commandName = objects.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex());
         return executeNextCommand(DatabaseCommands.valueOf(commandName.asString()).getCommand(env, objects));
