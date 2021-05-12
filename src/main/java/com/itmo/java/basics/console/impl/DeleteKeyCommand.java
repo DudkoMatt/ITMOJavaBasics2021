@@ -29,8 +29,9 @@ public class DeleteKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public DeleteKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (commandArgs.size() != 5)
+        if (commandArgs.size() != 5) {
             throw new IllegalArgumentException("Wrong number of arguments");
+        }
 
         this.env = env;
         this.commandArgs = commandArgs;
@@ -49,8 +50,9 @@ public class DeleteKeyCommand implements DatabaseCommand {
         String key = commandArgs.get(DatabaseCommandArgPositions.KEY.getPositionIndex()).asString();
 
         Optional<Database> optionalDatabase = env.getDatabase(dbName);
-        if (optionalDatabase.isEmpty())
+        if (optionalDatabase.isEmpty()) {
             return DatabaseCommandResult.error(String.format("Database %s does not exist", dbName));
+        }
 
         try {
             byte[] previousValue = optionalDatabase.get().read(tableName, key).orElse(null);

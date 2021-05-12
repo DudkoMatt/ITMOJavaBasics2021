@@ -30,8 +30,9 @@ public class CreateTableCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (commandArgs.size() != 4)
+        if (commandArgs.size() != 4) {
             throw new IllegalArgumentException("Wrong number of arguments");
+        }
 
         this.env = env;
         this.commandArgs = commandArgs;
@@ -49,8 +50,9 @@ public class CreateTableCommand implements DatabaseCommand {
         String tableName = commandArgs.get(DatabaseCommandArgPositions.TABLE_NAME.getPositionIndex()).asString();
 
         Optional<Database> optionalDatabase = env.getDatabase(dbName);
-        if (optionalDatabase.isEmpty())
+        if (optionalDatabase.isEmpty()) {
             return DatabaseCommandResult.error(String.format("Database %s does not exist", dbName));
+        }
 
         try {
             optionalDatabase.get().createTableIfNotExists(tableName);
