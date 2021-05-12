@@ -12,7 +12,7 @@ import java.util.StringJoiner;
  * Массив RESP объектов
  */
 public class RespArray implements RespObject {
-    List<RespObject> objects;
+    private final List<RespObject> objects;
 
     /**
      * Код объекта
