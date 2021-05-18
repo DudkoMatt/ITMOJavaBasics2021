@@ -4,14 +4,21 @@ import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.DatabaseCommandArgPositions;
 import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.basics.console.ExecutionEnvironment;
+import com.itmo.java.basics.exceptions.DatabaseException;
+import com.itmo.java.basics.logic.Database;
 import com.itmo.java.protocol.model.RespObject;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Команда для чтения данных по ключу
  */
 public class GetKeyCommand implements DatabaseCommand {
+    private final ExecutionEnvironment env;
+    private final List<RespObject> commandArgs;
+
+    private final static int NUMBER_OF_ARGS = 5;
 
     /**
      * Создает команду.
@@ -24,7 +31,17 @@ public class GetKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public GetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        //TODO implement
+        if (commandArgs.size() != NUMBER_OF_ARGS) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (RespObject command: commandArgs) {
+                stringBuilder.append(command.asString()).append(" ");
+            }
+
+            throw new IllegalArgumentException(String.format("Wrong number of arguments. Total length: %s Arguments provided: %s", commandArgs.size(), stringBuilder));
+        }
+
+        this.env = env;
+        this.commandArgs = commandArgs;
     }
 
     /**
@@ -34,7 +51,19 @@ public class GetKeyCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        //TODO implement
-        return null;
+        String dbName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
+        String tableName = commandArgs.get(DatabaseCommandArgPositions.TABLE_NAME.getPositionIndex()).asString();
+        String key = commandArgs.get(DatabaseCommandArgPositions.KEY.getPositionIndex()).asString();
+
+        Optional<Database> optionalDatabase = env.getDatabase(dbName);
+        if (optionalDatabase.isEmpty()) {
+            return DatabaseCommandResult.error(String.format("Database %s does not exist", dbName));
+        }
+
+        try {
+            return DatabaseCommandResult.success(optionalDatabase.get().read(tableName, key).orElse(null));
+        } catch (DatabaseException e) {
+            return DatabaseCommandResult.error(e);
+        }
     }
 }

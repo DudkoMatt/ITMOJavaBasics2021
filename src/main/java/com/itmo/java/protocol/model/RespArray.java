@@ -2,12 +2,17 @@ package com.itmo.java.protocol.model;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Массив RESP объектов
  */
 public class RespArray implements RespObject {
+    private final List<RespObject> objects;
 
     /**
      * Код объекта
@@ -15,7 +20,7 @@ public class RespArray implements RespObject {
     public static final byte CODE = '*';
 
     public RespArray(RespObject... objects) {
-        //TODO implement
+        this.objects = new LinkedList<>(Arrays.asList(objects));
     }
 
     /**
@@ -35,17 +40,26 @@ public class RespArray implements RespObject {
      */
     @Override
     public String asString() {
-        //TODO implement
-        return null;
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        for (RespObject object : objects) {
+            stringJoiner.add(object.asString());
+        }
+        
+        return stringJoiner.toString();
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        //TODO implement
+        os.write(CODE);
+        os.write(String.valueOf(objects.size()).getBytes(StandardCharsets.UTF_8));
+        os.write(CRLF);
+
+        for (RespObject object : objects) {
+            object.write(os);
+        }
     }
 
     public List<RespObject> getObjects() {
-        //TODO implement
-        return null;
+        return objects;
     }
 }

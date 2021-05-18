@@ -2,11 +2,13 @@ package com.itmo.java.protocol.model;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 /**
  * Id
  */
 public class RespCommandId implements RespObject {
+    private final int commandId;
 
     /**
      * Код объекта
@@ -14,7 +16,7 @@ public class RespCommandId implements RespObject {
     public static final byte CODE = '!';
 
     public RespCommandId(int commandId) {
-        //TODO implement
+        this.commandId = commandId;
     }
 
     /**
@@ -29,12 +31,13 @@ public class RespCommandId implements RespObject {
 
     @Override
     public String asString() {
-        //TODO implement
-        return null;
+        return String.valueOf(commandId);
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        //TODO implement
+        os.write(CODE);
+        os.write(ByteBuffer.allocate(4).putInt(commandId).array());
+        os.write(CRLF);
     }
 }
