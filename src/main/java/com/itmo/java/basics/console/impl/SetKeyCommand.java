@@ -19,6 +19,8 @@ public class SetKeyCommand implements DatabaseCommand {
     private final ExecutionEnvironment env;
     private final List<RespObject> commandArgs;
 
+    private final static int NUMBER_OF_ARGS = 6;
+
     /**
      * Создает команду.
      * <br/>
@@ -30,7 +32,7 @@ public class SetKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public SetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (commandArgs.size() != 6) {
+        if (commandArgs.size() != NUMBER_OF_ARGS) {
             StringBuilder stringBuilder = new StringBuilder();
             for (RespObject command: commandArgs) {
                 stringBuilder.append(command.asString()).append(" ");
