@@ -66,12 +66,6 @@ public class SegmentImpl implements Segment {
     }
 
     static String createSegmentName(String tableName) {
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Interrupted Thread.sleep", e);
-        }
-
         return tableName + "_" + System.currentTimeMillis();
     }
 
