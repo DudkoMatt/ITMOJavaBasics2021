@@ -17,7 +17,7 @@ public class DeleteKvsCommand implements KvsCommand {
         this.databaseName = databaseName;
         this.tableName = tableName;
         this.key = key;
-        this.id = idGen.get();
+        this.id = idGen.getAndIncrement();
     }
 
     /**

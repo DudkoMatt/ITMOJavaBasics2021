@@ -21,7 +21,7 @@ public class CreateDatabaseKvsCommand implements KvsCommand {
      */
     public CreateDatabaseKvsCommand(String databaseName) {
         this.databaseName = databaseName;
-        this.id = idGen.get();
+        this.id = idGen.getAndIncrement();
     }
 
     /**

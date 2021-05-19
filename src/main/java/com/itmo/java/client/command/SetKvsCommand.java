@@ -19,7 +19,7 @@ public class SetKvsCommand implements KvsCommand {
         this.tableName = tableName;
         this.key = key;
         this.value = value;
-        this.id = idGen.get();
+        this.id = idGen.getAndIncrement();
     }
 
     /**
