@@ -11,6 +11,7 @@ import com.itmo.java.protocol.model.RespObject;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Команда для создания базы таблицы
@@ -33,12 +34,13 @@ public class CreateTableCommand implements DatabaseCommand {
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
         if (commandArgs.size() != NUMBER_OF_ARGS) {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (RespObject command: commandArgs) {
-                stringBuilder.append(command.asString()).append(" ");
-            }
-
-            throw new IllegalArgumentException(String.format("Wrong number of arguments. Total length: %s Arguments provided: %s", commandArgs.size(), stringBuilder));
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Wrong number of arguments. Total length: %s Arguments provided: %s",
+                            commandArgs.size(),
+                            commandArgs.stream().map(RespObject::asString).collect(Collectors.joining(" "))
+                    )
+            );
         }
 
         this.env = env;

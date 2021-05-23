@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Массив RESP объектов
@@ -40,12 +40,7 @@ public class RespArray implements RespObject {
      */
     @Override
     public String asString() {
-        StringJoiner stringJoiner = new StringJoiner(" ");
-        for (RespObject object : objects) {
-            stringJoiner.add(object.asString());
-        }
-        
-        return stringJoiner.toString();
+        return objects.stream().map(RespObject::asString).collect(Collectors.joining(" "));
     }
 
     @Override
