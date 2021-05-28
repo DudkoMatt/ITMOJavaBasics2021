@@ -17,6 +17,8 @@ public class RespBulkString implements RespObject {
 
     public static final int NULL_STRING_SIZE = -1;
 
+    public static final RespBulkString NULL_STRING = new RespBulkString(new byte[0]);
+
     public RespBulkString(byte[] data) {
         this.data = data;
     }
