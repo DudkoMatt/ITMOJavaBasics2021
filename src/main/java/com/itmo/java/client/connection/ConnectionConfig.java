@@ -19,4 +19,8 @@ public class ConnectionConfig {
 
     private final String host;
     private final int port;
+
+    public ConnectionConfig() {
+        this(DEFAULT_HOST, DEFAULT_PORT);
+    }
 }

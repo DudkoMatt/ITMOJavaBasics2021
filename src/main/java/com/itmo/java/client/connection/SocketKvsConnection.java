@@ -6,13 +6,25 @@ import com.itmo.java.protocol.RespWriter;
 import com.itmo.java.protocol.model.RespArray;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.io.IOException;
+import java.net.Socket;
+
 /**
  * С помощью {@link RespWriter} и {@link RespReader} читает/пишет в сокет
  */
 public class SocketKvsConnection implements KvsConnection {
+    private final Socket socket;
+    private final RespReader reader;
+    private final RespWriter writer;
 
     public SocketKvsConnection(ConnectionConfig config) {
-        //TODO implement
+        try {
+            this.socket = new Socket(config.getHost(), config.getPort());
+            this.reader = new RespReader(socket.getInputStream());
+            this.writer = new RespWriter(socket.getOutputStream());
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot create SocketKvsConnection", e);
+        }
     }
 
     /**
@@ -23,8 +35,15 @@ public class SocketKvsConnection implements KvsConnection {
      */
     @Override
     public synchronized RespObject send(int commandId, RespArray command) throws ConnectionException {
-        //TODO implement
-        return null;
+        try {
+            writer.write(command);
+            while (!reader.hasAvailableData()) {
+
+            }
+            return reader.readObject();
+        } catch (IOException e) {
+            throw new ConnectionException(String.format("Command sending error. CommandID: %d", commandId), e);
+        }
     }
 
     /**
@@ -32,6 +51,22 @@ public class SocketKvsConnection implements KvsConnection {
      */
     @Override
     public void close() {
-        //TODO implement
+        try {
+            socket.close();
+        } catch (IOException ignore) {
+            // Ignore errors on closing
+        }
+
+        try {
+            reader.close();
+        } catch (IOException ignore) {
+            // Ignore errors on closing
+        }
+
+        try {
+            writer.close();
+        } catch (IOException ignore) {
+            // Ignore errors on closing
+        }
     }
 }
