@@ -32,17 +32,21 @@ public class RespReader implements AutoCloseable {
      * Есть ли следующий массив в стриме?
      */
     public boolean hasArray() throws IOException {
+        return hasNextCode(RespArray.CODE);
+    }
+
+    public boolean hasNextCode(byte code) throws IOException {
         is.mark(1);
         byte classCode;
-        
+
         try {
             classCode = readNextByteFromIOStream();
         } catch (IOException e) {
             return false;
         }
-        
+
         is.reset();
-        return classCode == RespArray.CODE;
+        return classCode == code;
     }
 
     /**

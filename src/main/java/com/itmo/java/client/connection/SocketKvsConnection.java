@@ -4,6 +4,8 @@ import com.itmo.java.client.exception.ConnectionException;
 import com.itmo.java.protocol.RespReader;
 import com.itmo.java.protocol.RespWriter;
 import com.itmo.java.protocol.model.RespArray;
+import com.itmo.java.protocol.model.RespBulkString;
+import com.itmo.java.protocol.model.RespError;
 import com.itmo.java.protocol.model.RespObject;
 
 import java.io.IOException;
@@ -37,9 +39,14 @@ public class SocketKvsConnection implements KvsConnection {
     public synchronized RespObject send(int commandId, RespArray command) throws ConnectionException {
         try {
             writer.write(command);
+
+            if (!(reader.hasNextCode(RespBulkString.CODE) || reader.hasNextCode(RespError.CODE))) {
+                throw new ConnectionException("Server returned neither bulk-string nor error");
+            }
+
             return reader.readObject();
         } catch (IOException e) {
-            throw new ConnectionException(String.format("Command sending error. CommandID: %d", commandId), e);
+            throw new ConnectionException(String.format("Command sending/execution error. CommandID: %d", commandId), e);
         }
     }
 
