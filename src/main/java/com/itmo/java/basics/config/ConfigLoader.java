@@ -1,23 +1,19 @@
 package com.itmo.java.basics.config;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Класс, отвечающий за подгрузку данных из конфигурационного файла формата .properties
  */
 public class ConfigLoader {
-    private final static String DEFAULT_PROPERTY_FILENAME = "server.properties";
-    private final static String DEFAULT_PROPERTY_PATH = "src/main/resources";
-    private final static String HOST_KEY_DICTIONARY =  "kvs.host";
-    private final static String PORT_KEY_DICTIONARY = "kvs.port";
-    private final static String WORKING_PATH_KEY_DICTIONARY = "kvs.workingPath";
+    private final static String DEFAULT_PROPERTY_FILENAME = "src/main/resources/server.properties";
+    private final static String HOST_PROPERTY =  "kvs.host";
+    private final static String PORT_PROPERTY = "kvs.port";
+    private final static String WORKING_PATH_PROPERTY = "kvs.workingPath";
 
-    private final String propertiesFilename;
-    private final HashMap<String, String> propertiesDictionary;
+    private final Properties properties;
 
     /**
      * По умолчанию читает из server.properties
@@ -30,8 +26,12 @@ public class ConfigLoader {
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
-        propertiesFilename = Path.of(DEFAULT_PROPERTY_PATH, name).toString();
-        propertiesDictionary = new HashMap<>();
+        try {
+            properties = new Properties();
+            properties.load(new FileInputStream(name));
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("File %s cannot be found", name), e);
+        }
     }
 
     /**
@@ -42,22 +42,13 @@ public class ConfigLoader {
      * Читаются: "kvs.workingPath", "kvs.host", "kvs.port" (но в конфигурационном файле допустимы и другие проперти)
      */
     public DatabaseServerConfig readConfig() {
-        loadAllProperties();
+        String host = properties.getProperty(HOST_PROPERTY, ServerConfig.DEFAULT_HOST);
+        int port = Integer.parseInt(properties.getProperty(PORT_PROPERTY, String.valueOf(ServerConfig.DEFAULT_PORT)));
+        String workingPath = properties.getProperty(WORKING_PATH_PROPERTY, DatabaseConfig.DEFAULT_WORKING_PATH);
 
         return DatabaseServerConfig.builder()
-                .serverConfig(new ServerConfig(propertiesDictionary.get(HOST_KEY_DICTIONARY), Integer.parseInt(propertiesDictionary.get(PORT_KEY_DICTIONARY))))
-                .dbConfig(new DatabaseConfig(propertiesDictionary.get(WORKING_PATH_KEY_DICTIONARY)))
+                .serverConfig(new ServerConfig(host, port))
+                .dbConfig(new DatabaseConfig(workingPath))
                 .build();
-    }
-
-    private void loadAllProperties() {
-        try (Scanner scanner = new Scanner(new FileInputStream(propertiesFilename))) {
-            while (scanner.hasNext()) {
-                String[] propertyLine = scanner.nextLine().split("=", 2);
-                propertiesDictionary.put(propertyLine[0], propertyLine[1]);
-            }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(String.format("File %s does not exist", propertiesFilename), e);
-        }
     }
 }
