@@ -150,22 +150,14 @@ public class RespReader implements AutoCloseable {
         byte c = readNextByteFromIOStream();
 
         while (!isPreviousCR || c != LF) {
-            if (isPreviousCR) {
-                data.add(CR);
-            }
-
-            if (c == CR) {
-                isPreviousCR = true;
-            } else {
-                data.add(c);
-            }
-
+            isPreviousCR = c == CR;
+            data.add(c);
             c = readNextByteFromIOStream();
         }
 
-        byte[] result = new byte[data.size()];
+        byte[] result = new byte[data.size() - 1];
 
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = 0; i < data.size() - 1; i++) {
             result[i] = data.get(i);
         }
 
