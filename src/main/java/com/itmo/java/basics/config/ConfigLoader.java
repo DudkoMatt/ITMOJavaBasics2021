@@ -26,11 +26,12 @@ public class ConfigLoader {
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
+        properties = new Properties();
+
         try {
-            properties = new Properties();
             properties.load(new FileInputStream(name));
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("File %s cannot be found", name), e);
+        } catch (IOException ignore) {
+            // Ignore and use defaults
         }
     }
 
