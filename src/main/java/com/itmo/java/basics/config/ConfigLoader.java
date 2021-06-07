@@ -2,6 +2,7 @@ package com.itmo.java.basics.config;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -9,7 +10,8 @@ import java.util.Scanner;
  * Класс, отвечающий за подгрузку данных из конфигурационного файла формата .properties
  */
 public class ConfigLoader {
-    private final static String DEFAULT_PROPERTY_FILENAME = "src/main/resources/server.properties";
+    private final static String DEFAULT_PROPERTY_FILENAME = "server.properties";
+    private final static String DEFAULT_PROPERTY_PATH = "src/main/resources";
     private final static String HOST_KEY_DICTIONARY =  "kvs.host";
     private final static String PORT_KEY_DICTIONARY = "kvs.port";
     private final static String WORKING_PATH_KEY_DICTIONARY = "kvs.workingPath";
@@ -28,9 +30,8 @@ public class ConfigLoader {
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
-        propertiesFilename = name;
+        propertiesFilename = Path.of(DEFAULT_PROPERTY_PATH, name).toString();
         propertiesDictionary = new HashMap<>();
-
     }
 
     /**
