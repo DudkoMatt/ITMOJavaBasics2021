@@ -64,8 +64,8 @@ public class JavaSocketServerConnector implements Closeable {
     @Override
     public void close() {
         System.out.println("Stopping socket connector");
-        clientIOWorkers.shutdown();
-        connectionAcceptorExecutor.shutdown();
+        clientIOWorkers.shutdownNow();
+        connectionAcceptorExecutor.shutdownNow();
 
         try {
             serverSocket.close();
