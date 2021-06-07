@@ -54,10 +54,10 @@ public class RespReader implements AutoCloseable {
      */
     public RespObject readObject() throws IOException {
         is.mark(1);
-        byte class_code = readNextByteFromIOStream();
+        byte classCode = readNextByteFromIOStream();
         is.reset();
 
-        switch (class_code) {
+        switch (classCode) {
             case RespArray.CODE:
                 return readArray();
             case RespBulkString.CODE:
@@ -68,7 +68,7 @@ public class RespReader implements AutoCloseable {
                 return readError();
             default:
                 close();
-                throw new IOException("Invalid code symbol: " + (char) class_code);
+                throw new IOException("Invalid code symbol: " + (char) classCode);
         }
     }
 

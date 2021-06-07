@@ -39,12 +39,12 @@ public class DatabaseServerInitializer implements Initializer {
         }
 
         try {
-            for (Path db_directory : Files.newDirectoryStream(workingPath)) {
-                if (Files.isDirectory(db_directory)) {
+            for (Path dbDirectory : Files.newDirectoryStream(workingPath)) {
+                if (Files.isDirectory(dbDirectory)) {
                     databaseInitializer.perform(
                             InitializationContextImpl.builder()
                                     .executionEnvironment(context.executionEnvironment())
-                                    .currentDatabaseContext(new DatabaseInitializationContextImpl(new File(db_directory.toString()).getName(), workingPath))
+                                    .currentDatabaseContext(new DatabaseInitializationContextImpl(new File(dbDirectory.toString()).getName(), workingPath))
                                     .build()
                     );
                 }
