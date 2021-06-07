@@ -52,7 +52,7 @@ public class JavaSocketServerConnector implements Closeable {
                     Socket client = serverSocket.accept();
                     clientIOWorkers.submit(new ClientTask(client, databaseServer));
                 } catch (IOException e) {
-                    throw new RuntimeException("Cannot accept client and start new thread", e);
+                    throw new RuntimeException("Cannot accept client", e);
                 }
             }
         });
