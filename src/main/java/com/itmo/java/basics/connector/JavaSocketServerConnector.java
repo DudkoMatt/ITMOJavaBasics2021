@@ -50,7 +50,7 @@ public class JavaSocketServerConnector implements Closeable {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     Socket client = serverSocket.accept();
-                    new ClientTask(client, databaseServer).run();
+                    clientIOWorkers.submit(new ClientTask(client, databaseServer));
                 } catch (IOException e) {
                     throw new RuntimeException("Cannot accept client and start new thread", e);
                 }
