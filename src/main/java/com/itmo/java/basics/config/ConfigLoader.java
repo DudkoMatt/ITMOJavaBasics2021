@@ -2,14 +2,12 @@ package com.itmo.java.basics.config;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Properties;
 
 /**
  * Класс, отвечающий за подгрузку данных из конфигурационного файла формата .properties
  */
 public class ConfigLoader {
-    private final static Path DEFAULT_PROPERTY_PATH = Path.of("src/main/resources/");
     private final static String DEFAULT_PROPERTY_FILENAME = "server.properties";
     private final static String HOST_PROPERTY =  "kvs.host";
     private final static String PORT_PROPERTY = "kvs.port";
@@ -31,7 +29,7 @@ public class ConfigLoader {
         properties = new Properties();
 
         try {
-            properties.load(new FileInputStream(Path.of(DEFAULT_PROPERTY_PATH.toString(), name).toString()));
+            properties.load(new FileInputStream(name));
         } catch (IOException ignore) {
             // Ignore and use defaults
         }
