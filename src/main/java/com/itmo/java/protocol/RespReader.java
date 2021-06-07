@@ -32,23 +32,17 @@ public class RespReader implements AutoCloseable {
      * Есть ли следующий массив в стриме?
      */
     public boolean hasArray() throws IOException {
-        if (is.available() <= 0) {
-            return false;
-        }
-
         is.mark(1);
-        byte class_code = (byte) is.read();
-        is.reset();
-
-        return class_code == RespArray.CODE;
-    }
-
-    public boolean hasAvailableData() {
+        byte classCode;
+        
         try {
-            return is.available() > 0;
+            classCode = readNextByteFromIOStream();
         } catch (IOException e) {
             return false;
         }
+        
+        is.reset();
+        return classCode == RespArray.CODE;
     }
 
     /**
@@ -59,16 +53,8 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespObject readObject() throws IOException {
-        while (is.available() <= 0) {
-            // Ждем данных
-        }
-
-        /* if (is.available() <= 0) {
-            throw new EOFException("End of stream reached");
-        } */
-
         is.mark(1);
-        byte class_code = (byte) is.read();
+        byte class_code = readNextByteFromIOStream();
         is.reset();
 
         switch (class_code) {
@@ -93,12 +79,7 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespError readError() throws IOException {
-        if (is.available() <= 0) {
-            close();
-            throw new EOFException("End of stream reached");
-        }
-
-        validateRespClassCode((byte) is.read(), RespError.CODE);
+        validateRespClassCode(readNextByteFromIOStream(), RespError.CODE);
         byte[] data = readUntilCRLF();
 
         return new RespError(data);
@@ -111,20 +92,15 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespBulkString readBulkString() throws IOException {
-        if (is.available() <= 0) {
-            close();
-            throw new EOFException("End of stream reached");
-        }
-
-        validateRespClassCode((byte) is.read(), RespBulkString.CODE);
+        validateRespClassCode(readNextByteFromIOStream(), RespBulkString.CODE);
 
         int bytesToRead = Integer.parseInt(new String(readUntilCRLF()));
         if (bytesToRead == RespBulkString.NULL_STRING_SIZE) {
             return RespBulkString.NULL_STRING;
         }
 
-        byte [] stringData = is.readNBytes(bytesToRead);
-        is.skip(END_BYTES_COUNT);
+        byte [] stringData = readNextNBytesFromIOStream(bytesToRead);
+        skipNBytesFromIOStream(END_BYTES_COUNT);
 
         return new RespBulkString(stringData);
     }
@@ -136,12 +112,7 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespArray readArray() throws IOException {
-        if (is.available() <= 0) {
-            close();
-            throw new EOFException("End of stream reached");
-        }
-
-        validateRespClassCode((byte) is.read(), RespArray.CODE);
+        validateRespClassCode(readNextByteFromIOStream(), RespArray.CODE);
 
         int objectsToRead = Integer.parseInt(new String(readUntilCRLF()));
         RespObject[] objects = new RespObject[objectsToRead];
@@ -160,14 +131,9 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespCommandId readCommandId() throws IOException {
-        if (is.available() <= 0) {
-            close();
-            throw new EOFException("End of stream reached");
-        }
-
-        validateRespClassCode((byte) is.read(), RespCommandId.CODE);
-        int commandId = ByteBuffer.wrap(is.readNBytes(4)).getInt();
-        is.skip(END_BYTES_COUNT);
+        validateRespClassCode(readNextByteFromIOStream(), RespCommandId.CODE);
+        int commandId = ByteBuffer.wrap(readNextNBytesFromIOStream(4)).getInt();
+        skipNBytesFromIOStream(END_BYTES_COUNT);
 
         return new RespCommandId(commandId);
     }
@@ -181,7 +147,7 @@ public class RespReader implements AutoCloseable {
     private byte[] readUntilCRLF() throws IOException {
         LinkedList<Byte> data = new LinkedList<>();
         boolean isPreviousCR = false;
-        byte c = (byte) is.read();
+        byte c = readNextByteFromIOStream();
 
         while (!isPreviousCR || c != LF) {
             if (isPreviousCR) {
@@ -194,7 +160,7 @@ public class RespReader implements AutoCloseable {
                 data.add(c);
             }
 
-            c = (byte) is.read();
+            c = readNextByteFromIOStream();
         }
 
         byte[] result = new byte[data.size()];
@@ -204,6 +170,31 @@ public class RespReader implements AutoCloseable {
         }
 
         return result;
+    }
+
+    private byte readNextByteFromIOStream() throws IOException {
+        int data = is.read();
+        if (data == -1) {
+            close();
+            throw new EOFException("End of stream reached");
+        }
+
+        return (byte) data;
+    }
+
+    private byte[] readNextNBytesFromIOStream(int n) throws IOException {
+        byte[] data = new byte[n];
+        for (int i = 0; i < n; i++) {
+            data[i] = readNextByteFromIOStream();
+        }
+
+        return data;
+    }
+
+    private void skipNBytesFromIOStream(int n) throws IOException {
+        if (is.skip(n) != n) {
+            throw new EOFException("End of stream reached");
+        }
     }
 
     @Override
