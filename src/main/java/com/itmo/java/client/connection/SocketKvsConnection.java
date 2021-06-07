@@ -37,9 +37,6 @@ public class SocketKvsConnection implements KvsConnection {
     public synchronized RespObject send(int commandId, RespArray command) throws ConnectionException {
         try {
             writer.write(command);
-            while (!reader.hasAvailableData()) {
-
-            }
             return reader.readObject();
         } catch (IOException e) {
             throw new ConnectionException(String.format("Command sending error. CommandID: %d", commandId), e);
