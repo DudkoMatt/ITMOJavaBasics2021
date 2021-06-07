@@ -2,6 +2,7 @@ package com.itmo.java.basics.config;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -29,7 +30,12 @@ public class ConfigLoader {
         properties = new Properties();
 
         try {
-            properties.load(new FileInputStream(name));
+            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(name);
+            if (inputStream == null) {
+                inputStream = new FileInputStream(name);
+            }
+
+            properties.load(inputStream);
         } catch (IOException ignore) {
             // Ignore and use defaults
         }
