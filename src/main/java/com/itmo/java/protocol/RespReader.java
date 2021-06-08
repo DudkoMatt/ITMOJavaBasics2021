@@ -20,7 +20,6 @@ public class RespReader implements AutoCloseable {
      */
     private static final byte CR = '\r';
     private static final byte LF = '\n';
-    private static final int END_BYTES_COUNT = 2;
 
     private final BufferedInputStream is;
 
@@ -104,7 +103,7 @@ public class RespReader implements AutoCloseable {
         }
 
         byte[] stringData = readNextNBytesFromIOStream(bytesToRead);
-        skipNBytesFromIOStream(END_BYTES_COUNT);
+        readCRLFFromIOStream();
 
         return new RespBulkString(stringData);
     }
@@ -137,7 +136,7 @@ public class RespReader implements AutoCloseable {
     public RespCommandId readCommandId() throws IOException {
         validateRespClassCode(readNextByteFromIOStream(), RespCommandId.CODE);
         int commandId = ByteBuffer.wrap(readNextNBytesFromIOStream(4)).getInt();
-        skipNBytesFromIOStream(END_BYTES_COUNT);
+        readCRLFFromIOStream();
 
         return new RespCommandId(commandId);
     }
@@ -188,9 +187,16 @@ public class RespReader implements AutoCloseable {
         return data;
     }
 
-    private void skipNBytesFromIOStream(int n) throws IOException {
-        if (is.skip(n) != n) {
+    private void readCRLFFromIOStream() throws IOException {
+        int byteCR = is.read();
+        int byteLF = is.read();
+
+        if (byteCR == -1 || byteLF == -1) {
             throw new EOFException("End of stream reached");
+        }
+
+        if ((byte) byteCR != CR || (byte) byteLF != LF) {
+            throw new IOException("Error occurred during reading");
         }
     }
 
