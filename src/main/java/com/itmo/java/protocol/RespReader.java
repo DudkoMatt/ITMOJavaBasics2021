@@ -103,7 +103,7 @@ public class RespReader implements AutoCloseable {
             return RespBulkString.NULL_STRING;
         }
 
-        byte [] stringData = readNextNBytesFromIOStream(bytesToRead);
+        byte[] stringData = readNextNBytesFromIOStream(bytesToRead);
         skipNBytesFromIOStream(END_BYTES_COUNT);
 
         return new RespBulkString(stringData);
@@ -179,9 +179,10 @@ public class RespReader implements AutoCloseable {
     }
 
     private byte[] readNextNBytesFromIOStream(int n) throws IOException {
-        byte[] data = new byte[n];
-        for (int i = 0; i < n; i++) {
-            data[i] = readNextByteFromIOStream();
+        byte[] data = is.readNBytes(n);
+
+        if (data.length != n) {
+            throw new IOException(String.format("Cannot read %d bytes, read only %d", n, data.length));
         }
 
         return data;
