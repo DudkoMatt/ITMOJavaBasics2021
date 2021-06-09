@@ -42,14 +42,14 @@ public class TableInitializer implements Initializer {
             return diff < 0 ? -1 : diff == 0 ? 0 : 1;
         });
 
-        for (File segment_file : files) {
-            if (segment_file.isFile()) {
+        for (File segmentFile : files) {
+            if (segmentFile.isFile()) {
                 segmentInitializer.perform(
                         InitializationContextImpl.builder()
                                 .executionEnvironment(context.executionEnvironment())
                                 .currentDatabaseContext(context.currentDbContext())
                                 .currentTableContext(context.currentTableContext())
-                                .currentSegmentContext(new SegmentInitializationContextImpl(segment_file.getName(), workingPath, segment_file.length()))
+                                .currentSegmentContext(new SegmentInitializationContextImpl(segmentFile.getName(), workingPath, segmentFile.length()))
                                 .build()
                 );
             }

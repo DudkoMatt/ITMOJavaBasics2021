@@ -64,6 +64,11 @@ public class DeleteKeyCommand implements DatabaseCommand {
 
         try {
             byte[] previousValue = optionalDatabase.get().read(tableName, key).orElse(null);
+
+            if (previousValue == null) {
+                return DatabaseCommandResult.error(String.format("Value for the key '%s' does not exist", key));
+            }
+
             optionalDatabase.get().delete(tableName, key);
             return DatabaseCommandResult.success(previousValue);
         } catch (DatabaseException e) {

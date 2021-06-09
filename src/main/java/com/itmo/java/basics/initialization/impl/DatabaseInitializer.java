@@ -31,13 +31,13 @@ public class DatabaseInitializer implements Initializer {
         Path workingPath = initialContext.currentDbContext().getDatabasePath();
 
         try {
-            for (Path table_directory : Files.newDirectoryStream(workingPath)) {
-                if (Files.isDirectory(table_directory)) {
+            for (Path tableDirectory : Files.newDirectoryStream(workingPath)) {
+                if (Files.isDirectory(tableDirectory)) {
                     tableInitializer.perform(
                             InitializationContextImpl.builder()
                                     .executionEnvironment(initialContext.executionEnvironment())
                                     .currentDatabaseContext(initialContext.currentDbContext())
-                                    .currentTableContext(new TableInitializationContextImpl(new File(table_directory.toString()).getName(), workingPath, new TableIndex()))
+                                    .currentTableContext(new TableInitializationContextImpl(new File(tableDirectory.toString()).getName(), workingPath, new TableIndex()))
                                     .build()
                     );
                 }
