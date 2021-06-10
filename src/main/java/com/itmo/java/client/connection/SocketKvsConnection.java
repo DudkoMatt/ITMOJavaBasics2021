@@ -39,11 +39,6 @@ public class SocketKvsConnection implements KvsConnection {
     public synchronized RespObject send(int commandId, RespArray command) throws ConnectionException {
         try {
             writer.write(command);
-
-            if (!(reader.hasNextCode(RespBulkString.CODE) || reader.hasNextCode(RespError.CODE))) {
-                throw new ConnectionException("Server returned neither bulk-string nor error");
-            }
-
             return reader.readObject();
         } catch (IOException e) {
             throw new ConnectionException(String.format("Command sending/execution error. CommandID: %d", commandId), e);
